@@ -40,9 +40,8 @@ namespace AzureSearchCustomHelp
                  new SearchParameters()
                  {
                      Filter = _filter,
-                     Select = new[] { "id","Content", "ms_locale", "ms_search_region"
-                                    ,"Microsoft_Help_Id"
-                                    ,"description","Title","metadata_storage_name","ms_search_form","metadata_storage_path","metadata_storage_content_type"}
+                     Select = new[] { "id", "ms_locale", "ms_search_region"
+                                    ,"description","title","ms_search_form","metadata_storage_path","metadata_storage_content_type", "metadata_storage_name"}
                  };
             results = indexClient.Documents.Search<Document>(_searchString, parameters);
 
