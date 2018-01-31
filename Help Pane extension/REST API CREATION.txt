@@ -7,7 +7,7 @@ Auth: no auth
 POST mode for Datasource,Index and Indexer.
 
 
-Creating a DataSource:
+Create dataSource:
 {
     "name" : "testabledatasource1",
     "type" : "azureblob",
@@ -16,26 +16,24 @@ Creating a DataSource:
 } 
 
 
-Creating a Index:
+Create index:
 
 {
       "name" : "jsonindex1",
       "fields": [
          { "name": "id", "type": "Edm.String", "key": true,"searchable": true, "filterable": true, "sortable": true, "facetable": true }  ,
-        { "name": "Title", "type": "Edm.String", "searchable": true, "filterable": true, "sortable": true, "facetable": true }  ,
+        { "name": "title", "type": "Edm.String", "searchable": true, "filterable": true, "sortable": true, "facetable": true }  ,
         { "name": "ms_search_form", "type": "Edm.String", "searchable": true, "filterable": true, "sortable": true, "facetable": true },
         { "name": "ms_search_region", "type": "Edm.String", "searchable": true, "filterable": true, "sortable": true, "facetable": true },
         { "name": "ms_locale", "type": "Edm.String", "searchable": true, "filterable": true, "sortable": true, "facetable": true },
         { "name": "metadata_storage_path", "type": "Edm.String", "searchable": true, "filterable": true, "sortable": true, "facetable": true },
         { "name": "metadata_storage_name", "type": "Edm.String", "searchable": true, "filterable": true, "sortable": true, "facetable": true },
         { "name": "metadata_storage_content_type", "type": "Edm.String", "searchable": true, "filterable": false, "sortable": false, "facetable": false },
-         { "name": "Microsoft_Help_Id", "type": "Edm.String", "searchable": true, "filterable": true, "sortable": true, "facetable": true },
-        { "name": "description",  "type": "Edm.String", "searchable": true, "filterable": true, "sortable": true, "facetable": true },
-        { "name": "Content", "type": "Edm.String", "searchable": true, "filterable": true, "sortable": true, "facetable": true }
-        
+        { "name": "description",  "type": "Edm.String", "searchable": true, "filterable": true, "sortable": true, "facetable": true }
         ]
 }
-Creating a Indexer with Field Mapping:
+
+Create indexer with field mapping:
 {
   "name" : "my-json-indexer3",
   "dataSourceName" : "testabledatasource1",
@@ -43,8 +41,7 @@ Creating a Indexer with Field Mapping:
   "schedule" : { "interval" : "PT10H" },
   "parameters" : { "configuration" : { "parsingMode" : "json" } },
   "fieldMappings" : [
-    { "sourceFieldName" : "/Title", "targetFieldName" : "Title" },
-    { "sourceFieldName" : "/Content", "targetFieldName" : "Content" },
+    { "sourceFieldName" : "/title", "targetFieldName" : "title" },
     { "sourceFieldName" : "/ms.search.form", "targetFieldName" : "ms_search_form" },
     { "sourceFieldName" : "/ms.search.region", "targetFieldName" : "ms_search_region" },
     { "sourceFieldName" : "/ms.locale", "targetFieldName" : "ms_locale" },

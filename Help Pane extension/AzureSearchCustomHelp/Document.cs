@@ -20,13 +20,10 @@ namespace AzureSearchCustomHelp
         public string id { get; set; }
 
         [IsFilterable, IsSortable, IsFacetable, IsSearchable]
-        public string Title { get; set; }
+        public string title { get; set; }
 
         [IsFilterable, IsSortable, IsFacetable, IsSearchable]
         public string ms_search_form { get; set; }
-
-        [IsFilterable, IsSortable, IsFacetable, IsSearchable]
-        public string metadata_storage_name { get; set; }
 
         [IsFilterable, IsSortable, IsFacetable, IsSearchable]
         public string ms_search_region { get; set; }
@@ -44,6 +41,8 @@ namespace AzureSearchCustomHelp
        [IsFilterable, IsSortable, IsFacetable]
        public string metadata_storage_content_type { get; set; }
 
+       [IsFilterable, IsSortable, IsFacetable]
+       public string metadata_storage_name { get; set; }
 
        [IsFilterable, IsSortable, IsFacetable, IsSearchable]
        public string description { get; set; }
