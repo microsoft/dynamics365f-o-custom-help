@@ -7,11 +7,11 @@ Auth: no auth
 POST mode for Datasource,Index and Indexer.
 
 
-Create dataSource:
+Create datasource:
 {
     "name" : "testabledatasource1",
     "type" : "azureblob",
-    "credentials" : { "connectionString" : "DefaultEndpointsProtocol=https;AccountName=jsonfiles;AccountKey=cNeUNWwH583wU5Mkg8sY0kVlIiQVszZHYrDXehCLhHD/OqX+O+o6f5W4gAEuSOU1AfKwee0WvMpJnrMkfIfYxg==;EndpointSuffix=core.windows.net" },
+    "credentials" : { "connectionString" : "DefaultEndpointsProtocol=https;AccountName=jsonfiles;AccountKey=[accountKey];EndpointSuffix=core.windows.net" },
     "container" : { "name" : "jsoncontainer1" }
 } 
 
