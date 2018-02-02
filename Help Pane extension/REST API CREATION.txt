@@ -9,17 +9,17 @@ POST mode for Datasource,Index and Indexer.
 
 Create datasource:
 {
-    "name" : "testabledatasource1",
+    "name" : "[DataSourceName]",
     "type" : "azureblob",
-    "credentials" : { "connectionString" : "DefaultEndpointsProtocol=https;AccountName=jsonfiles;AccountKey=[accountKey];EndpointSuffix=core.windows.net" },
-    "container" : { "name" : "jsoncontainer1" }
+    "credentials" : { "connectionString" : "DefaultEndpointsProtocol=https;AccountName=[AccountName];AccountKey=[accountKey];EndpointSuffix=core.windows.net" },
+    "container" : { "name" : "[ContainerName]" }
 } 
 
 
 Create index:
 
 {
-      "name" : "jsonindex1",
+      "name" : "[IndexName]",
       "fields": [
          { "name": "id", "type": "Edm.String", "key": true,"searchable": true, "filterable": true, "sortable": true, "facetable": true }  ,
         { "name": "title", "type": "Edm.String", "searchable": true, "filterable": true, "sortable": true, "facetable": true }  ,
@@ -35,9 +35,9 @@ Create index:
 
 Create indexer with field mapping:
 {
-  "name" : "my-json-indexer3",
-  "dataSourceName" : "testabledatasource1",
-  "targetIndexName" : "jsonindex1",
+  "name" : "[IndexName]",
+  "dataSourceName" : "[DataSourceName]",
+  "targetIndexName" : "[IndexName]",
   "schedule" : { "interval" : "PT10H" },
   "parameters" : { "configuration" : { "parsingMode" : "json" } },
   "fieldMappings" : [
