@@ -276,7 +276,7 @@
                 SetLanguage(parameters.Lng, Path.GetDirectoryName(pathToDocFxJson));
                 Logger.LogInfo(Completed);
             }
-            DocFxJsonHelper.ModifyDocfxJson(pathToDocFxJson, CustomPluginName);
+            DocFxJsonHelper.ModifyDocfxJson(pathToDocFxJson, CustomPluginName, parameters.Rtl);
 
             string docfxexe = Path.Combine(tempDocFxDir, DocFxExe);
             int exitCodeDocFx = RunDocFx(docfxexe, pathToDocFxJson);
