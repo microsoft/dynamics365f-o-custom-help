@@ -28,9 +28,10 @@ namespace ConsoleApp.Helpers
         /// </summary>
         /// <param name="docFxJsonPath">The docfx.json file path.</param>
         /// <param name="pathToCustomPlugin">The path to the cusom plugin.</param>
+        /// <param name="rtl"></param>
         /// <exception cref="ConsoleApp.Exceptions.DocFxJsonException">Incorrect structure of docfx.json</exception>
         /// <exception cref="DocFxJsonException">Incorrect structure of docfx.json</exception>
-        public static void ModifyDocfxJson(string docFxJsonPath, string pathToCustomPlugin)
+        public static void ModifyDocfxJson(string docFxJsonPath, string pathToCustomPlugin, bool rtl)
         {
             string docFxJsonContent = File.ReadAllText(docFxJsonPath);
             JObject docfx = JObject.Parse(docFxJsonContent);
@@ -47,6 +48,11 @@ namespace ConsoleApp.Helpers
             docfx["build"]["globalMetadata"]["_noindex"] = true;
             docfx["build"]["globalMetadata"]["_norobots"] = true;
             docfx["build"]["globalMetadata"]["ms.contentlocale"] = "en-us";
+
+            if (rtl)
+            {
+                docfx["build"]["globalMetadata"]["_rtl"] = true;
+            }
 
             if (docfx["build"]["template"] == null)
             {

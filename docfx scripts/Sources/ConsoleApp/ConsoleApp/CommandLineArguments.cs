@@ -336,5 +336,15 @@ namespace ConsoleApp
         [CmdLineArg(ShowInUsage = DefaultBoolean.True, Usage = "language code")]
         [System.ComponentModel.Description("The language code, e.g. en-US")]
         public string Lng { get; set; }
+
+        /// <summary>
+        /// Gets or sets the RTL.
+        /// </summary>
+        /// <value>
+        /// The RTL.
+        /// </value>
+        [CmdLineArg(ShowInUsage = DefaultBoolean.False, Usage = "Right To Left flag")]
+        [System.ComponentModel.Description("The Right To Left")]
+        public bool Rtl { get; set; }
     }
 }
