@@ -22,6 +22,8 @@ namespace MainProcessor
         /// The pattern for 'audience: Application User'
         /// </summary>
         private const string PatternAudience = @"(audience)\s*?:\s*?.*?(Application User)";
+
+        private const string PatternRedirect = @"redirect_url";
         #endregion
 
         #region Protected Fields        
@@ -196,7 +198,13 @@ namespace MainProcessor
                 string meta = match.Groups[2].Value;
                 rgx = new Regex(PatternAudience, RegexOptions.IgnoreCase);
                 bool result = rgx.IsMatch(meta);
-                return result;
+
+                if (!result)
+                {
+                    rgx = new Regex(PatternRedirect, RegexOptions.IgnoreCase);
+                    return rgx.IsMatch(meta);
+                }
+                return true;
             }
             return false;
         }
@@ -417,7 +425,7 @@ namespace MainProcessor
         /// </summary>
         EnUsLink = 2,
         /// <summary>
-        /// The relative link with extension
+        /// The relative link without extension
         /// </summary>
         RelativeWoExt = 3
     }

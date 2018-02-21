@@ -1,4 +1,6 @@
-﻿using Microsoft.DocAsCode.Common;
+﻿using System;
+using System.IO;
+using Microsoft.DocAsCode.Common;
 
 namespace CustomPlugin
 {
@@ -51,7 +53,11 @@ namespace CustomPlugin
         {
             if (base.GetProcessingPriority(file) != ProcessingPriority.NotSupported)
             {
-                return ProcessingPriority.Highest;
+                string name = Path.GetFileNameWithoutExtension(file.FullPath);
+                if (name == null || !name.Equals("TOC", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return ProcessingPriority.Highest;
+                }
             }
 
             return ProcessingPriority.NotSupported;
