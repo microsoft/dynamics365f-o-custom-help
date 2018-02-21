@@ -7,7 +7,11 @@
         // and specifies the type for which the method is defined.
         public static string TrimEnd(this string str, string trimString)
         {
-            return str.TrimEnd(trimString.ToCharArray());
+            if (str.EndsWith(trimString))
+            {
+                return str.Substring(0, str.Length - trimString.Length);
+            }
+            return str;
         }
     }
 }
