@@ -51,13 +51,19 @@ namespace MainProcessor
         {
             try
             {
+                foreach (string f in Directory.GetFiles(path, mask))
+                {
+                    list.Add(f);
+                    handler?.Invoke(f, list.Count);
+                }
+
                 foreach (string d in Directory.GetDirectories(path))
                 {
-                    foreach (string f in Directory.GetFiles(d, mask))
-                    {
-                        list.Add(f);
-                        handler?.Invoke(f, list.Count);
-                    }
+                    //foreach (string f in Directory.GetFiles(d, mask))
+                    //{
+                    //    list.Add(f);
+                    //    handler?.Invoke(f, list.Count);
+                    //}
                     FindAllFilesRecursively(d, mask, list, handler);
                 }
             }

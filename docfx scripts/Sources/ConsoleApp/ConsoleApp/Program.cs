@@ -270,12 +270,14 @@
             string pathToTemplateZip = SaveToTempFile(Properties.Resources.mstemplate, MsTemplateZip);
             string templateTempDir = ExtractZip(pathToTemplateZip, MsTemplateZip);
             UtilityHelper.CopyDirectory(templateTempDir, Path.GetDirectoryName(pathToDocFxJson));
-            if (!String.IsNullOrEmpty(parameters.Lng))
+
+            if (String.IsNullOrEmpty(parameters.Lng))
             {
-                Logger.LogInfo($"Setting language {parameters.Lng} for template...", false);
-                SetLanguage(parameters.Lng, Path.GetDirectoryName(pathToDocFxJson));
-                Logger.LogInfo(Completed);
+                parameters.Lng = "en-us";
             }
+            Logger.LogInfo($"Setting language {parameters.Lng} for template...", false);
+            SetLanguage(parameters.Lng, Path.GetDirectoryName(pathToDocFxJson));
+            Logger.LogInfo(Completed);
             DocFxJsonHelper.ModifyDocfxJson(pathToDocFxJson, CustomPluginName, parameters.Rtl);
 
             string docfxexe = Path.Combine(tempDocFxDir, DocFxExe);
