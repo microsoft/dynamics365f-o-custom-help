@@ -245,9 +245,9 @@
                 StringBuilder sb = new StringBuilder();
                 foreach (string file in LRemovedFiles)
                 {
-                    sb.AppendLine(file);
                     if (!LIgnoredFiles.Contains(file))
                     {
+                        sb.AppendLine(file);
                         string path = Path.Combine(repoLocalRoot, file);
                         if (File.Exists(path))
                         {
