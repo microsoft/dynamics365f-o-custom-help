@@ -129,7 +129,7 @@ namespace ConsoleApp
             ValidateLogParameter("--notExistFilesLog", NotExistFilesLog, ref errors);
             ValidateLogParameter("--copiedFilesLog", CopiedFilesLog, ref errors);
             ValidateLogParameter("--replacedLinksLog", ReplacedLinksLog, ref errors);
-            ValidateLogParameter("--replacedEnUsLinksLog", ReplacedEnUsLinksLog, ref errors);
+            ValidateLogParameter("--replacedLanguageLinksLog", ReplacedLanguageLinksLog, ref errors);
 
             if (errors.Count > 1)
             {
@@ -304,8 +304,8 @@ namespace ConsoleApp
         /// The replaced en-US links log.
         /// </value>
         [CmdLineArg(ShowInUsage = DefaultBoolean.True, Usage = "path", Required = true)]
-        [System.ComponentModel.Description("The log with replaced links to en-US, e.g. logs/replacedEnUsLinks.log")]
-        public string ReplacedEnUsLinksLog { get; set; }
+        [System.ComponentModel.Description("The log with replaced links to the specified language, e.g. logs/replacedArSaLinks.log")]
+        public string ReplacedLanguageLinksLog { get; set; }
 
         /// <summary>
         /// Gets or sets the enRepo.

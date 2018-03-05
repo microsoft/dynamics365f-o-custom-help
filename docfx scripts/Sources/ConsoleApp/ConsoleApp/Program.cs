@@ -100,11 +100,13 @@
             var parameters = new CommandLineArguments();
             parameters.Initialize();
 
+            string[] parameterNames = typeof(CommandLineArguments).GetProperties().Select(p => $"--{p.Name}").ToArray();
+
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("ERROR: Please correct the following errors!");
             foreach (string s in args)
             {
-                if (s.StartsWith("-") && s[1] != '-')
+                if (s.StartsWith("-") && s[1] != '-' || s.StartsWith("--") && !parameterNames.Any(p => p.Equals(s, StringComparison.InvariantCultureIgnoreCase)))
                 {
                     sb.AppendLine($@"Unknown parameter: {s}");
                     _isValid = false;
@@ -262,7 +264,7 @@
             WriteLog(SbNotExistingFiles.ToString(), parameters.NotExistFilesLog, "Not Existing Link;Source File");
             WriteLog(SbCopiedFiles.ToString(), parameters.CopiedFilesLog, "The files which have been copied from en-US repository");
             WriteLog(SbReplacedLinks.ToString(), parameters.ReplacedLinksLog, "Source file;Link;Title;New Link;New Title");
-            WriteLog(SbReplacedEnUsLinks.ToString(), parameters.ReplacedEnUsLinksLog, "Source file;Link;Title;New Link;New Title");
+            WriteLog(SbReplacedEnUsLinks.ToString(), parameters.ReplacedLanguageLinksLog, "Source file;Link;Title;New Link;New Title");
 
             string tempDocFxZipFile = SaveToTempFile(Properties.Resources.docfx, DocFxZip);
             string tempDocFxDir = ExtractZip(tempDocFxZipFile, DocFxZip);
