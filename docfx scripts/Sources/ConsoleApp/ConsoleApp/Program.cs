@@ -207,7 +207,7 @@
                 parameters.ReplaceUrl = $"{parameters.ReplaceUrl}/";
             }
 
-            string baseEnUsUrl = parameters.Lng != null ? parameters.ReplaceUrl.Replace(parameters.Lng, "en-us") : null;
+            string baseEnUsUrl = parameters.ReplaceUrl;
             string baseWoExtUrl = null;
 
             if (Uri.TryCreate(parameters.ReplaceUrl, UriKind.Absolute, out var uriResult) && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps))
