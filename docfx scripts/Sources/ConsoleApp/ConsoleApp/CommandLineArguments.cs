@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using BizArk.Core;
 using BizArk.Core.CmdLine;
 
@@ -13,128 +14,92 @@ namespace ConsoleApp
     [CmdLineOptions(ArgumentPrefix = "--")]
     public class CommandLineArguments : CmdLineObject
     {
+        private string _logsDir;
+
         /// <summary>
         /// Override this method to perform cmd-line validation. It is recommended to call the base method.
         /// </summary>
         /// <returns></returns>
         protected override string[] Validate()
         {
-            List<string> errors = new List<string>();
-            errors.Add("Please correct the following errors!");
+            LinkedList<string> errors = new LinkedList<string>();
 
-            if (DoNotClone && !String.IsNullOrEmpty(Repo))
-            {
-                errors.Add(@"Parameters --donotclone and --repo could not be specified together.");
-            }
+            if (DoNotClone && !string.IsNullOrEmpty(Repo))
+                errors.AddLast(@"Parameters --donotclone and --repo could not be specified together.");
 
-            if (DoNotClone && !String.IsNullOrEmpty(EnRepo))
-            {
-                errors.Add(@"Parameters --donotclone and --enRepo could not be specified together.");
-            }
+            if (DoNotClone && !string.IsNullOrEmpty(EnRepo))
+                errors.AddLast(@"Parameters --donotclone and --enRepo could not be specified together.");
 
-            if (!DoNotClone && !String.IsNullOrEmpty(Repo))
+            if (!DoNotClone && !string.IsNullOrEmpty(Repo))
             {
-                Uri uriResult;
-                bool result = Uri.TryCreate(Repo, UriKind.Absolute, out uriResult) && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+                bool result = Uri.TryCreate(Repo, UriKind.Absolute, out Uri uriResult) && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
                 if (!result)
-                {
-                    errors.Add(@"Incorrect --repo parameter. Please specify valid absolute URL.");
-                }
+                    errors.AddLast(@"Incorrect --repo parameter. Please specify valid absolute URL.");
             }
 
-            if (String.IsNullOrEmpty(Out))
+            if (string.IsNullOrEmpty(Out))
             {
-                errors.Add(@"The --Out parameter is empty. Please specify valid path.");
+                errors.AddLast(@"The --Out parameter is empty. Please specify valid path.");
             }
             else
             {
-                if (DoNotClone && String.IsNullOrEmpty(Repo) && !Directory.Exists(Out))
-                {
-                    errors.Add($@"The path specified in --out doesn't exist: {Out}");
-                }
-                else if (!DoNotClone && !String.IsNullOrEmpty(Repo) && Directory.Exists(Out))
-                {
-                    errors.Add($@"The path specified in --out already exists: {Out}");
-                }
+                if (DoNotClone && string.IsNullOrEmpty(Repo) && !Directory.Exists(Out))
+                    errors.AddLast($@"The path specified in --out doesn't exist: {Out}");
+                else if (!DoNotClone && !string.IsNullOrEmpty(Repo) && Directory.Exists(Out))
+                    errors.AddLast($@"The path specified in --out already exists: {Out}");
             }
 
-            if (!DoNotClone && !String.IsNullOrEmpty(EnRepo))
+            if (!DoNotClone && !string.IsNullOrEmpty(EnRepo))
             {
-                if (String.IsNullOrEmpty(EnOut))
-                {
-                    errors.Add(@"The --enOut parameter is empty. Please specify valid path.");
-                }
+                if (string.IsNullOrEmpty(EnOut))
+                    errors.AddLast(@"The --enOut parameter is empty. Please specify valid path.");
 
-                Uri uriResult;
-                bool result = Uri.TryCreate(EnRepo, UriKind.Absolute, out uriResult) && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+                bool result = Uri.TryCreate(EnRepo, UriKind.Absolute, out Uri uriResult) && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
                 if (!result)
-                {
-                    errors.Add(@"Incorrect --enRepo parameter. Please specify valid absolute URL.");
-                }
+                    errors.AddLast(@"Incorrect --enRepo parameter. Please specify valid absolute URL.");
             }
 
-            if (!String.IsNullOrEmpty(EnOut))
+            if (!string.IsNullOrEmpty(EnOut))
             {
-                if (DoNotClone && String.IsNullOrEmpty(EnRepo) && !Directory.Exists(EnOut))
-                {
-                    errors.Add($@"The path specified in --enOut doesn't exist: {EnOut}");
-                }
-                else if (!DoNotClone && !String.IsNullOrEmpty(EnRepo) && Directory.Exists(EnOut))
-                {
-                    errors.Add($@"The path specified in --enOut already exists: {EnOut}");
-                }
+                if (DoNotClone && string.IsNullOrEmpty(EnRepo) && !Directory.Exists(EnOut))
+                    errors.AddLast($@"The path specified in --enOut doesn't exist: {EnOut}");
+                else if (!DoNotClone && !string.IsNullOrEmpty(EnRepo) && Directory.Exists(EnOut))
+                    errors.AddLast($@"The path specified in --enOut already exists: {EnOut}");
             }
 
-            if (String.IsNullOrEmpty(Json) || Json != null && !Json.Equals("Articles/", StringComparison.InvariantCultureIgnoreCase))
+            if (string.IsNullOrEmpty(Json) || Json != null && !Json.Equals("Articles/", StringComparison.InvariantCultureIgnoreCase))
             {
-                errors.Add(@"Please specify 'Articles/' in --json parameter.");
+                errors.AddLast(@"Please specify 'Articles/' in --json parameter.");
             }
 
-            if (String.IsNullOrEmpty(ReplaceUrl))
+            if (string.IsNullOrEmpty(ReplaceUrl))
             {
-                errors.Add(@"Please specify valid URL in --replaceUrl parameter.");
+                errors.AddLast(@"Please specify valid URL in --replaceUrl parameter.");
             }
             else
             {
-                Uri uriResult;
-                bool result = Uri.TryCreate(ReplaceUrl, UriKind.Absolute, out uriResult) && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+                bool result = Uri.TryCreate(ReplaceUrl, UriKind.Absolute, out Uri uriResult) && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
                 if (!result)
-                {
-                    errors.Add(@"Incorrect --replaceUrl parameter. Please specify valid absolute URL.");
-                }
+                    errors.AddLast(@"Incorrect --replaceUrl parameter. Please specify valid absolute URL.");
             }
 
-            if (String.IsNullOrEmpty(ExternalText))
+            if (string.IsNullOrEmpty(ExternalText))
+                errors.AddLast(@"Please specify --externalText parameter.");
+
+            if (!string.IsNullOrEmpty(Lng) && !string.IsNullOrEmpty(ReplaceUrl) && ReplaceUrl.IndexOf(Lng, StringComparison.InvariantCultureIgnoreCase) == -1)
+                errors.AddLast(@"Incorrect --lng code. The --replaceUrl must contain a language identifier that match the value of -–lng value");
+
+            if (!string.IsNullOrEmpty(EnOut) && string.IsNullOrEmpty(Lng))
+                errors.AddLast(@"Please specify --lng parameter. Note: the --replaceUrl must contain a language identifier that match the value of -–lng value");
+
+            ValidateLogParameter("--logsDir", LogsDir, errors);
+
+            if (errors.Count > 0)
             {
-                errors.Add(@"Please specify --externalText parameter.");
-            }
-
-
-            if (!String.IsNullOrEmpty(Lng) && !String.IsNullOrEmpty(ReplaceUrl))
-            {
-                if (ReplaceUrl.IndexOf(Lng, StringComparison.InvariantCultureIgnoreCase) == -1)
-                {
-                    errors.Add(@"Incorrect --lng code. The --replaceUrl must contain a language identifier that match the value of -–lng value");
-                }
-            }
-
-            if (!String.IsNullOrEmpty(EnOut) && String.IsNullOrEmpty(Lng))
-            {
-                errors.Add(@"Please specify --lng parameter. Note: the --replaceUrl must contain a language identifier that match the value of -–lng value");
-            }
-
-            ValidateLogParameter("--consoleLog", ConsoleLog, ref errors);
-            ValidateLogParameter("--removedFilesLog", RemovedFilesLog, ref errors);
-            ValidateLogParameter("--normalFilesLog", NormalFilesLog, ref errors);
-            ValidateLogParameter("--notExistFilesLog", NotExistFilesLog, ref errors);
-            ValidateLogParameter("--copiedFilesLog", CopiedFilesLog, ref errors);
-            ValidateLogParameter("--replacedLinksLog", ReplacedLinksLog, ref errors);
-            ValidateLogParameter("--replacedLanguageLinksLog", ReplacedLanguageLinksLog, ref errors);
-
-            if (errors.Count > 1)
-            {
+                errors.AddFirst("Please correct the following errors!");
                 return errors.ToArray();
             }
+            
             return base.Validate();
         }
 
@@ -144,25 +109,17 @@ namespace ConsoleApp
         /// <param name="paramName">Name of the parameter.</param>
         /// <param name="paramValue">The parameter value.</param>
         /// <param name="errors">The errors.</param>
-        private void ValidateLogParameter(string paramName, string paramValue, ref List<string> errors)
+        private void ValidateLogParameter(string paramName, string paramValue, LinkedList<string> errors)
         {
-            if (String.IsNullOrEmpty(paramValue))
+            if (!Directory.Exists(paramValue))
             {
-                errors.Add($"Please specify valid path and file name in {paramName} parameter");
-            }
-            else
-            {
-                string dirName = Path.GetDirectoryName(paramValue);
-                if (!String.IsNullOrEmpty(dirName) && !Directory.Exists(dirName))
+                try
                 {
-                    try
-                    {
-                        Directory.CreateDirectory(dirName);
-                    }
-                    catch (Exception ex)
-                    {
-                        errors.Add($@"Could not created directory {dirName} for the {paramName} parameter: {ex.Message}");
-                    }
+                    Directory.CreateDirectory(paramValue);
+                }
+                catch (Exception ex)
+                {
+                    errors.AddLast($@"Could not create directory {paramValue} for the {paramName} parameter: {ex.Message}");
                 }
             }
         }
@@ -238,74 +195,18 @@ namespace ConsoleApp
         public string ExternalText { get; set; }
 
         /// <summary>
-        /// Gets or sets the console log.
+        /// Gets or sets the folder to store logs.
         /// </summary>
         /// <value>
         /// The console log.
         /// </value>
-        [CmdLineArg(ShowInUsage = DefaultBoolean.True, Usage = "path", Required = true)]
-        [System.ComponentModel.Description("The general log file, e.g. logs/output.log")]
-        public string ConsoleLog { get; set; }
-
-        /// <summary>
-        /// Gets or sets the removed files log.
-        /// </summary>
-        /// <value>
-        /// The removed files log.
-        /// </value>
-        [CmdLineArg(ShowInUsage = DefaultBoolean.True, Usage = "path", Required = true)]
-        [System.ComponentModel.Description("The log with files to remove, e.g. logs/removedFiles.log")]
-        public string RemovedFilesLog { get; set; }
-
-        /// <summary>
-        /// Gets or sets the normal files log.
-        /// </summary>
-        /// <value>
-        /// The normal files log.
-        /// </value>
-        [CmdLineArg(ShowInUsage = DefaultBoolean.True, Usage = "path", Required = true)]
-        [System.ComponentModel.Description("The log with files which normal processed, e.g. logs/normalFiles.log")]
-        public string NormalFilesLog { get; set; }
-
-        /// <summary>
-        /// Gets or sets the not exist files log.
-        /// </summary>
-        /// <value>
-        /// The not exist files log.
-        /// </value>
-        [CmdLineArg(ShowInUsage = DefaultBoolean.True, Usage = "path", Required = true)]
-        [System.ComponentModel.Description("The log with files which don't exist on disk, e.g. logs/notExistFiles.log")]
-        public string NotExistFilesLog { get; set; }
-
-        /// <summary>
-        /// Gets or sets the copied files log.
-        /// </summary>
-        /// <value>
-        /// The copied files log.
-        /// </value>
-        [CmdLineArg(ShowInUsage = DefaultBoolean.True, Usage = "path", Required = true)]
-        [System.ComponentModel.Description("The log with files which were copied from en-US repository, e.g. logs/copiedFiles.log")]
-        public string CopiedFilesLog { get; set; }
-
-        /// <summary>
-        /// Gets or sets the replaced links log.
-        /// </summary>
-        /// <value>
-        /// The replaced links log.
-        /// </value>
-        [CmdLineArg(ShowInUsage = DefaultBoolean.True, Usage = "path", Required = true)]
-        [System.ComponentModel.Description("The log with replaced links, e.g. logs/replacedLinks.log")]
-        public string ReplacedLinksLog { get; set; }
-
-        /// <summary>
-        /// Gets or sets the replaced en us links log.
-        /// </summary>
-        /// <value>
-        /// The replaced en-US links log.
-        /// </value>
-        [CmdLineArg(ShowInUsage = DefaultBoolean.True, Usage = "path", Required = true)]
-        [System.ComponentModel.Description("The log with replaced links to the specified language, e.g. logs/replacedArSaLinks.log")]
-        public string ReplacedLanguageLinksLog { get; set; }
+        [CmdLineArg(ShowInUsage = DefaultBoolean.True, Usage = ".\\logs", Required = false)]
+        [System.ComponentModel.Description("Directory to store logs")]
+        public string LogsDir
+        {
+            get => string.IsNullOrEmpty(_logsDir) ? "logs" : _logsDir;
+            set => _logsDir = value;
+        }
 
         /// <summary>
         /// Gets or sets the enRepo.
