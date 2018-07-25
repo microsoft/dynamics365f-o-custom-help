@@ -242,29 +242,35 @@
                 }
             }
 
-            if (!String.IsNullOrEmpty(parameters.RemovedFilesLog))
+            LogFiles logFiles = new LogFiles(parameters.LogsDir);
+
+            StringBuilder sb = new StringBuilder();
+            foreach (string file in LRemovedFiles)
             {
-                StringBuilder sb = new StringBuilder();
-                foreach (string file in LRemovedFiles)
+                if (!LIgnoredFiles.Contains(file))
                 {
-                    if (!LIgnoredFiles.Contains(file))
+                    sb.AppendLine(file);
+                    string path = Path.Combine(repoLocalRoot, file);
+                    if (File.Exists(path))
                     {
-                        sb.AppendLine(file);
-                        string path = Path.Combine(repoLocalRoot, file);
-                        if (File.Exists(path))
-                        {
-                            File.Delete(path);
-                        }
+                        File.Delete(path);
                     }
                 }
-                WriteLog(sb.ToString(), parameters.RemovedFilesLog, "The files which have been removed");
+            }
+            WriteLog(sb.ToString(), logFiles.RemovedFilesLog, "The files which have been removed");
+
+            StringBuilder sbIgnored = new StringBuilder();
+            foreach (string file in LIgnoredFiles)
+            {
+                sbIgnored.AppendLine(file);
             }
 
-            WriteLog(SbNormalFiles.ToString(), parameters.NormalFilesLog, "The normal files");
-            WriteLog(SbNotExistingFiles.ToString(), parameters.NotExistFilesLog, "Not Existing Link;Source File");
-            WriteLog(SbCopiedFiles.ToString(), parameters.CopiedFilesLog, "The files which have been copied from en-US repository");
-            WriteLog(SbReplacedLinks.ToString(), parameters.ReplacedLinksLog, "Source file;Link;Title;New Link;New Title");
-            WriteLog(SbReplacedEnUsLinks.ToString(), parameters.ReplacedLanguageLinksLog, "Source file;Link;Title;New Link;New Title");
+            WriteLog(SbNormalFiles.ToString(), logFiles.NormalFilesLog, "The normal files");
+            WriteLog(SbNotExistingFiles.ToString(), logFiles.NotExistentFilesLog, "Not Existing Link;Source File");
+            WriteLog(SbCopiedFiles.ToString(), logFiles.CopiedFilesLog, "The files which have been copied from en-US repository");
+            WriteLog(SbReplacedLinks.ToString(), logFiles.ReplacedLinksLog, "Source file;Link;Title;New Link;New Title");
+            WriteLog(SbReplacedEnUsLinks.ToString(), logFiles.ReplacedLanguageLinksLog, "Source file;Link;Title;New Link;New Title");
+            //WriteLog(sbIgnored.ToString(), "logs\\ignored files.txt", "The ignored files");
 
             string tempDocFxZipFile = SaveToTempFile(Properties.Resources.docfx, DocFxZip);
             string tempDocFxDir = ExtractZip(tempDocFxZipFile, DocFxZip);
@@ -300,11 +306,8 @@
                 (docfxDir != null ? Path.Combine(docfxDir, CustomPluginName) : null)
             });
 
-            if (!String.IsNullOrEmpty(parameters.ConsoleLog))
-            {
-                string consoleOutput = Logger.GetLogContent();
-                File.WriteAllText(parameters.ConsoleLog, consoleOutput);
-            }
+            string consoleOutput = Logger.GetLogContent();
+            File.WriteAllText(logFiles.ConsoleLog, consoleOutput);
             Exit(exitCode);
         }
 

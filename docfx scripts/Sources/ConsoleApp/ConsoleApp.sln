@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomPlugin", "..\CustomPl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MainProcessor", "MainProcessor\MainProcessor.csproj", "{C6A83C0A-6309-49A1-97F8-B8F169476FAC}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{41A2188C-E5DD-4111-83E8-297C31EF44F5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleAppTests", "ConsoleAppTests\ConsoleAppTests.csproj", "{D35BA5C3-883F-408D-ACF7-10F4D414504C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,9 +73,28 @@ Global
 		{C6A83C0A-6309-49A1-97F8-B8F169476FAC}.Release|Pocket PC 2003 (ARMV4).Build.0 = Release|Any CPU
 		{C6A83C0A-6309-49A1-97F8-B8F169476FAC}.Release|Win32.ActiveCfg = Release|Any CPU
 		{C6A83C0A-6309-49A1-97F8-B8F169476FAC}.Release|Win32.Build.0 = Release|Any CPU
+		{D35BA5C3-883F-408D-ACF7-10F4D414504C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D35BA5C3-883F-408D-ACF7-10F4D414504C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D35BA5C3-883F-408D-ACF7-10F4D414504C}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{D35BA5C3-883F-408D-ACF7-10F4D414504C}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{D35BA5C3-883F-408D-ACF7-10F4D414504C}.Debug|Pocket PC 2003 (ARMV4).ActiveCfg = Debug|Any CPU
+		{D35BA5C3-883F-408D-ACF7-10F4D414504C}.Debug|Pocket PC 2003 (ARMV4).Build.0 = Debug|Any CPU
+		{D35BA5C3-883F-408D-ACF7-10F4D414504C}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{D35BA5C3-883F-408D-ACF7-10F4D414504C}.Debug|Win32.Build.0 = Debug|Any CPU
+		{D35BA5C3-883F-408D-ACF7-10F4D414504C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D35BA5C3-883F-408D-ACF7-10F4D414504C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D35BA5C3-883F-408D-ACF7-10F4D414504C}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{D35BA5C3-883F-408D-ACF7-10F4D414504C}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{D35BA5C3-883F-408D-ACF7-10F4D414504C}.Release|Pocket PC 2003 (ARMV4).ActiveCfg = Release|Any CPU
+		{D35BA5C3-883F-408D-ACF7-10F4D414504C}.Release|Pocket PC 2003 (ARMV4).Build.0 = Release|Any CPU
+		{D35BA5C3-883F-408D-ACF7-10F4D414504C}.Release|Win32.ActiveCfg = Release|Any CPU
+		{D35BA5C3-883F-408D-ACF7-10F4D414504C}.Release|Win32.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D35BA5C3-883F-408D-ACF7-10F4D414504C} = {41A2188C-E5DD-4111-83E8-297C31EF44F5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0AE07475-537C-4450-BE40-ACA8CAD90A61}
