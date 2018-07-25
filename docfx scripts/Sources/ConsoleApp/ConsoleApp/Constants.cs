@@ -1,12 +1,13 @@
-﻿namespace ConsoleApp
+﻿using System.Collections.Generic;
+
+namespace ConsoleApp
 {
-    public class Constants
+    public static class Constants
     {
         /// <summary>
         /// The list of available languages
         /// </summary>
-        public static readonly string[] AvailableLanguages = new []
-        {
+        public static readonly IEnumerable<string> AvailableLanguages = new[] {
             "en-us",
             "ar-sa",
             "cs-cz",
@@ -30,7 +31,31 @@
             "sv-se",
             "th-th",
             "tr-tr",
-            "zh-cn"
+            "zh-cn",
+            "en",
+            "ar",
+            "cs",
+            "da",
+            "de",
+            "es",
+            "et",
+            "fi",
+            "fr",
+            "hu",
+            "is",
+            "it",
+            "ja",
+            "lt",
+            "lv",
+            "nb",
+            "nl",
+            "pl",
+            "pt",
+            "ru",
+            "sv",
+            "th",
+            "tr",
+            "zh"
         };
-}
+    }
 }

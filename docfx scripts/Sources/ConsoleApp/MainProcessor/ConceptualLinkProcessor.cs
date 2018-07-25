@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -200,15 +200,13 @@ namespace MainProcessor
             if (Uri.TryCreate(new Uri(baseUrl), href.TrimStart('\\').TrimEnd(".md"), out Uri uri))
             {
                 string query = GetQueryFromLink(link.Link);
-                string newLink = $"{uri.AbsoluteUri}{query}";
-
                 if (linkType == LinkType.EnUsLink)
                 {
-                    ReplacedEnUsLinks.AppendLine($"{SourceFilePath};{link.Link};{link.Title};{newLink};{link.Title + ExternalText}");
+                    ReplacedEnUsLinks.AppendLine($"{SourceFilePath};{link.Link};{link.Title};{uri.AbsoluteUri};{link.Title + ExternalText}");
                 }
                 else
                 {
-                    ReplacedLinks.AppendLine($"{SourceFilePath};{link.Link};{link.Title};{newLink};{link.Title + ExternalText}");
+                    ReplacedLinks.AppendLine($"{SourceFilePath};{link.Link};{link.Title};{uri.AbsoluteUri};{link.Title + ExternalText}");
                     string fileToRemove = href.TrimStart('\\');
                     if (!String.IsNullOrEmpty(query))
                     {
@@ -220,7 +218,7 @@ namespace MainProcessor
                     }
                 }
 
-                _newContent.Replace(link.FullMatch, link.FullMatch.Replace(link.Title, link.Title + ExternalText).Replace(link.Link, newLink));
+                _newContent.Replace(link.FullMatch, link.FullMatch.Replace(link.Title, link.Title + ExternalText).Replace(link.Link, uri.AbsoluteUri));
                 return true;
             }
             Logger.LogWarning($"URI could not be created: {BaseUrl} {href}");

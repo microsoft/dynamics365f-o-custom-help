@@ -598,20 +598,16 @@
                 Exit(ExitCodeEnum.InvalidCommandLine);
             }
 
-            if (!String.IsNullOrEmpty(options.Lng))
+            if (!String.IsNullOrEmpty(options.Lng) && !Constants.AvailableLanguages.Any(o => o.Equals(options.Lng, StringComparison.InvariantCultureIgnoreCase)))
             {
-                if (!Constants.AvailableLanguages.Any(o => o.Equals(options.Lng, StringComparison.InvariantCultureIgnoreCase)))
-                {
-                    Logger.LogError($"Invalid language provided: {options.Lng}");
-                    StringBuilder sb = new StringBuilder();
-                    sb.AppendLine("Available languages:");
-                    foreach (string lng in Constants.AvailableLanguages)
-                    {
-                        sb.AppendLine(lng);
-                    }
-                    Logger.LogError(sb.ToString());
-                    Exit(ExitCodeEnum.InvalidCommandLine);
-                }
+                Logger.LogError($"Invalid language provided: {options.Lng}");
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine("Available languages:");
+                foreach (string lng in Constants.AvailableLanguages)
+                    sb.AppendLine(lng);
+
+                Logger.LogError(sb.ToString());
+                Exit(ExitCodeEnum.InvalidCommandLine);
             }
 
             if (Directory.Exists(options.Out) && !options.DoNotClone)
