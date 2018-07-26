@@ -11,21 +11,19 @@ namespace MainProcessor
     {
         #region Constants
 
-        //private const string RegexMdLinksNew = @"(?<!\[\!)(?<!\[\!include)\[\s?(?!\!)(?!\!include)(.*?)\]\s*?\((.*?[\#?]?)?(\s*?)\)";
+        private const string RegexMdLinks = @"(?<!\[)(?<!\!)(?<!include)\[([^\[\]]*?)\]\((.*?)\)(?!\])";
         /// <summary>
         /// The regex for the links in MD file (group 1 - title, group 2 - link)
         /// </summary>
-        private const string RegexMdLinks = @"(?<!include)\[([\w\d\s\(\-–—:\/,\.„”'""\\#\+&)]*?)\]\s*?\((.*?[\#?]?)?(\s*?)\)";
         /// <summary>
         /// The regex include links (group 2 - title, group 3 - link)
         /// </summary>
-        private const string RegexIncludeLinks = @"(!include)\[([\w\d\s\(\-–—:\/,\.„”'""\\#\+&)]*?)\]\s*?\((.*?[\#?]?)?(\s*?)\)";
+        private const string RegexIncludeLinks = @"\[\!include\s*\[([^\[\]]*?)\]\((.*?)\)\]";
 
-        //private const string RegexMdPicturesNew = @"\[(!\[(.*?)\]\s*?\((.*?[\#?]?)?(\s*?)\))\]\((.*?)\)";
+        private const string RegexMdPictures = @"\[?(?:!\[(.*?)\]\s*?\((.*?)\))\]?(?:\((.*?)\))?";
         /// <summary>
         /// The regex for markdown pictures
         /// </summary>
-        private const string RegexMdPictures = @"\[(!\[([\!\w\d\s\(\-\–\—\:\\\/\,\.„”\'""\#\+\&\)]*?)\]\s*?\((.*?[\#?]?)?(\s*?)\))\]\((.*?)\)";
         /// <summary>
         /// The regex for the RAW HTML links in MD file (group 3 - title, group 2 - link)
         /// </summary>
@@ -51,7 +49,7 @@ namespace MainProcessor
         private readonly StringBuilder _newContent;
         #endregion
 
-        #region Constructor        
+        #region Constructor
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConceptualLinkProcessor"/> class.
@@ -90,7 +88,7 @@ namespace MainProcessor
                         continue;
                     }
 
-                    string linkClear = link.Link;
+                    string linkClear = CleanLinkOfQueryAndHash(link.Link);
 
                     if (linkClear.StartsWith("http", StringComparison.InvariantCultureIgnoreCase) ||
                         linkClear.EndsWith("toc.md", StringComparison.InvariantCultureIgnoreCase) ||
@@ -101,6 +99,7 @@ namespace MainProcessor
 
                     try
                     {
+
                         string href = BuildFullUrl("/" + SourceFilePath, linkClear);
                         ProcessLink(href, link.Link, new ConceptualItemParameter(ref _content, link, href));
                     }
@@ -121,7 +120,8 @@ namespace MainProcessor
 
                         if (!String.IsNullOrEmpty(picture.Link2) && !picture.Link1.Equals(picture.Link2))
                         {
-                            href = BuildFullUrl("/" + SourceFilePath, GetOnlyLink(picture.Link2));
+                            string link2 = CleanLinkOfQueryAndHash(GetOnlyLink(picture.Link2));
+                            href = BuildFullUrl("/" + SourceFilePath, link2);
                             ProcessLink(href, picture.Link2, null);
                         }
                     }
@@ -139,7 +139,7 @@ namespace MainProcessor
                         continue;
                     }
 
-                    string linkClear = link.Link;
+                    string linkClear = CleanLinkOfQueryAndHash(link.Link);
 
                     if (linkClear.StartsWith("http", StringComparison.InvariantCultureIgnoreCase) ||
                         linkClear.EndsWith("toc.md", StringComparison.InvariantCultureIgnoreCase) ||
@@ -284,14 +284,14 @@ namespace MainProcessor
             List<FoundLink> urls = new List<FoundLink>();
             for (int i = 0; i < matches.Count; i++)
             {
-                string link = matches[i].Groups[3].Value;
+                string link = matches[i].Groups[2].Value;
                 if (!link.StartsWith("#") && !link.StartsWith("http"))
                 {
                     urls.Add(new FoundLink()
                     {
                         FullMatch = matches[i].Value,
                         Link = GetOnlyLink(link),
-                        Title = matches[i].Groups[2].Value
+                        Title = matches[i].Groups[1].Value
                     });
                 }
             }
@@ -309,8 +309,8 @@ namespace MainProcessor
             List<FoundPicture> urls = new List<FoundPicture>();
             for (int i = 0; i < matches.Count; i++)
             {
-                string link1 = matches[i].Groups[3].Value;
-                string link2 = matches[i].Groups[5].Value;
+                string link1 = matches[i].Groups[2].Value;
+                string link2 = matches[i].Groups[3].Value;
                 if (!link1.StartsWith("#") && !link1.StartsWith("http"))
                 {
                     urls.Add(new FoundPicture()
@@ -344,39 +344,39 @@ namespace MainProcessor
         /// Gets the link from a little bit incorrect text, like (/some/path/file.md "Additional text is going here").
         /// </summary>
         /// <returns></returns>
-        private string GetOnlyLink(string link)
+        private static string GetOnlyLink(string link)
         {
-            int indexOfQuote1 = link.IndexOf("\"", StringComparison.InvariantCultureIgnoreCase);
-            int indexOfQuote2 = link.IndexOf("'", StringComparison.InvariantCultureIgnoreCase);
+            string result = link;
+            int indexOfQuote1 = result.IndexOf("\"", StringComparison.InvariantCultureIgnoreCase);
+            int indexOfQuote2 = result.IndexOf("'", StringComparison.InvariantCultureIgnoreCase);
             if (indexOfQuote1 > -1 || indexOfQuote2 > -1)
             {
                 int min = 0;
                 if (indexOfQuote1 < indexOfQuote2)
-                {
-                    if (indexOfQuote1 > -1)
-                    {
-                        min = indexOfQuote1;
-                    }
-                    else
-                    {
-                        min = indexOfQuote2;
-                    }
-                }
+                    min = indexOfQuote1 > -1 ? indexOfQuote1 : indexOfQuote2;
                 else if (indexOfQuote2 < indexOfQuote1)
-                {
-                    if (indexOfQuote2 > -1)
-                    {
-                        min = indexOfQuote2;
-                    }
-                    else
-                    {
-                        min = indexOfQuote1;
-                    }
-                }
+                    min = indexOfQuote2 > -1 ? indexOfQuote2 : indexOfQuote1;
 
-                return link.Substring(0, min).Trim();
+                result = result.Substring(0, min).Trim();
             }
-            
+
+            return result;
+        }
+
+        /// <summary>
+        /// Cleans link of query and hash parts
+        /// </summary>
+        /// <param name="link">Link text</param>
+        /// <returns>Link without query and hash parts</returns>
+        private static string CleanLinkOfQueryAndHash(string link)
+        {
+            int indexOfQuery = link.IndexOf('?');
+            if (indexOfQuery >= 0)
+                link = link.Substring(0, indexOfQuery);
+
+            int indexOfHash = link.IndexOf('#');
+            if (indexOfHash >= 0)
+                link = link.Substring(0, indexOfHash);
             return link;
         }
 
@@ -393,7 +393,9 @@ namespace MainProcessor
                 string relPath = Path.GetDirectoryName(sourceFilePathFromRoot);
                 if (relPath != null)
                 {
-                    DirectoryInfo dirInfo = new DirectoryInfo(Path.Combine(relPath, relativeLinkPath.TrimStart('~').TrimStart('\\').TrimStart('/')));
+                    string path = Path.Combine(relPath, relativeLinkPath.TrimStart('~').TrimStart('\\').TrimStart('/'))
+                                      .Replace('/', Path.DirectorySeparatorChar);
+                    DirectoryInfo dirInfo = new DirectoryInfo(path);
                     return "\\" + dirInfo.FullName.Substring(dirInfo.Root.FullName.Length);
                 }
             }

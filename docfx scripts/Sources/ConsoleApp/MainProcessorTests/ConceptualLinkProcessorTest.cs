@@ -13,6 +13,9 @@ namespace MainProcessorTests
             "[!include [banner](../includes/banner.md)]",
             "[!include [banner](../includes/banner.md)]")]
         [InlineData(
+            "[!include [banner](includes/banner.md)]",
+            "[!include [banner](includes/banner.md)]")]
+        [InlineData(
             "[!include [banner](/includes/banner.md)]",
             "[!include [banner](/includes/banner.md)]")]
         [InlineData(
@@ -66,6 +69,42 @@ namespace MainProcessorTests
         [InlineData(
             "79: [![Finanzberichterstellungsbeispiel](./media/111.png)](./media/222.png)",
             "79: [![Finanzberichterstellungsbeispiel](./media/111.png)](./media/222.png)")]
+        [InlineData(
+            "##### [إعداد بنو。د تصريف GST‬](/financials/localizations/tasks/my-00006-01-gst-relief-clauses)",
+            "##### [إعداد بنو。د تصريف GSTExternal text‬](https://github.com/financials/localizations/tasks/my-00006-01-gst-relief-clauses)")]
+        [InlineData(
+            @"### [Vytvoření entity ਀ pouze ke čtení, která zveřejňuje pouze finanční dimenze​](/financial/read-only-entity-financial)",
+            @"### [Vytvoření entity ਀ pouze ke čtení, která zveřejňuje pouze finanční dimenze​External text](https://github.com/financial/read-only-entity-financial)")]
+        [InlineData(
+            "[Advarsel!](/media/Cantdisplay)",
+            "[Advarsel!External text](https://github.com/media/Cantdisplay)")]
+        [InlineData(
+            "[![Planlægning af en vare med disponeringskoden **Behov** og ordreopfyldningen ** Første afgang**](/media/FirstIssueReq.png)]",
+            "[![Planlægning af en vare med disponeringskoden **Behov** og ordreopfyldningen ** Første afgang**](/media/FirstIssueReq.png)]")]
+        [InlineData(
+            "#### [Lokale Bereitstellungen von 7.2 mit ‎Platform update 12 (März 2018)](/get-started/whats-new-LBD-PU12-App72)",
+            "#### [Lokale Bereitstellungen von 7.2 mit ‎Platform update 12 (März 2018)External text](https://github.com/get-started/whats-new-LBD-PU12-App72)")]
+        [InlineData(
+            "#### [DataService’i tüüp](/mobile-apps/platform/client-apis/interfaces/services-business-logic-services-idataservice)",
+            "#### [DataService’i tüüpExternal text](https://github.com/mobile-apps/platform/client-apis/interfaces/services-business-logic-services-idataservice)")]
+        [InlineData(
+            "##### [Valider les N° documents à partir du journal des opérations diverses](/financials/localizations/tasks/post-vouchers-general-journal)",
+            "##### [Valider les N° documents à partir du journal des opérations diversesExternal text](https://github.com/financials/localizations/tasks/post-vouchers-general-journal)")]
+        [InlineData(
+            "[« Compte bancaire » saisi dans la zone de recherche](/media/6d08b0be32808221023e2aa92d69fd70)",
+            "[« Compte bancaire » saisi dans la zone de rechercheExternal text](https://github.com/media/6d08b0be32808221023e2aa92d69fd70)")]
+        [InlineData(
+            "### [Smíði skjámyndarinnar „Viðskiptavinur“](/user-interface/build-customer-form)",
+            "### [Smíði skjámyndarinnar „Viðskiptavinur“External text](https://github.com/user-interface/build-customer-form)")]
+        [InlineData(
+            "- [オンプレミス配置でのドキュメントの生成、発行、および印刷機能](/analytics/printing-capabilities-on-premises)",
+            "- [オンプレミス配置でのドキュメントの生成、発行、および印刷機能External text](https://github.com/analytics/printing-capabilities-on-premises)")]
+        [InlineData(
+            "[Poga “Skatīt visus variantus” krājumu meklēšanas lapā](/media/StandardToMatrix)",
+            "[Poga “Skatīt visus variantus” krājumu meklēšanas lapāExternal text](https://github.com/media/StandardToMatrix)")]
+        [InlineData(
+            "##### [设置销售税代码（墨西哥）](/financials/localizations/tasks/mx-00006-sales-tax-code)",
+            "##### [设置销售税代码（墨西哥）External text](https://github.com/financials/localizations/tasks/mx-00006-sales-tax-code)")]
         public void Test_ProcessContentLinks_Processes_Links(string input, string expected)
         {
            StringBuilder sb = new StringBuilder();
@@ -85,7 +124,7 @@ namespace MainProcessorTests
             bool hasChanges = processor.ProcessContentLinks();
             Assert.Equal(shouldHaveChanges, hasChanges);
 
-            Assert.Equal(expected, sb.ToString());
+            Assert.Equal(expected, sb.ToString(), StringComparer.InvariantCulture);
         }
 
         private class MockLogger : ILogger
