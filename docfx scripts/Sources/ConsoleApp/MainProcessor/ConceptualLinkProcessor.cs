@@ -95,14 +95,14 @@ namespace MainProcessor
 
                     if (linkClear.StartsWith("http", StringComparison.InvariantCultureIgnoreCase) ||
                         linkClear.EndsWith("toc.md", StringComparison.InvariantCultureIgnoreCase) ||
-                        linkClear.EndsWith("toc.yml", StringComparison.InvariantCultureIgnoreCase))
+                        linkClear.EndsWith("toc.yml", StringComparison.InvariantCultureIgnoreCase) ||
+                        linkClear.StartsWith("mailto", StringComparison.InvariantCultureIgnoreCase))
                     {
                         continue;
                     }
 
                     try
                     {
-
                         string href = BuildFullUrl("/" + SourceFilePath, linkClear);
                         ProcessLink(href, link.Link, new ConceptualItemParameter(ref _content, link, href));
                     }
