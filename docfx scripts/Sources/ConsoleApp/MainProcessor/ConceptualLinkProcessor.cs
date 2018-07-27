@@ -35,7 +35,7 @@ namespace MainProcessor
         /// <summary>
         /// The regex for the links in YAML file (group 1 - title, group 2 - link)
         /// </summary>
-        private const string RegexYamlLinks = @"name:\s?(.*?)\s*?href:(\s*)?(.*\.md.*?)";
+        private const string RegexYmlLinks = @"name\s*:\s*\'?(.*?)\'?\s*href\s*:\s*(.*)";
         #endregion
 
         #region Private Fields
@@ -76,10 +76,13 @@ namespace MainProcessor
         public override bool ProcessContentLinks()
         {
             string fname = Path.GetFileName(SourceFilePath);
-            bool result = (fname != null && fname.Equals("toc.md", StringComparison.InvariantCultureIgnoreCase) || ContentHasAudienceApplicationUser(_content));
+            bool yml = string.Equals(fname, "toc.yml", StringComparison.InvariantCultureIgnoreCase);
+            bool result = string.Equals(fname, "toc.md", StringComparison.InvariantCultureIgnoreCase)
+                          || yml
+                          || ContentHasAudienceApplicationUser(_content);
             if (result)
             {
-                FoundLink[] links = FindAllLinks(false, _content);
+                FoundLink[] links = FindAllLinks(yml, _content);
                 Links.AddRange(links.Select(l => l.FullMatch));
                 foreach (FoundLink link in links.GroupBy(k => k).Select(k => k.Key))
                 {
@@ -230,12 +233,12 @@ namespace MainProcessor
         /// <summary>
         /// Finds all links.
         /// </summary>
-        /// <param name="isYaml">if set to <c>true</c> [is yaml].</param>
+        /// <param name="isYml">if set to <c>true</c> [is yaml].</param>
         /// <param name="content">The content.</param>
         /// <returns></returns>
-        private FoundLink[] FindAllLinks(bool isYaml, string content)
+        private FoundLink[] FindAllLinks(bool isYml, string content)
         {
-            Regex rgx = new Regex(isYaml ? RegexYamlLinks : RegexMdLinks);
+            Regex rgx = new Regex(isYml ? RegexYmlLinks : RegexMdLinks);
             MatchCollection matches = rgx.Matches(content);
             List<FoundLink> urls = new List<FoundLink>();
             for (int i = 0; i < matches.Count; i++)
@@ -252,7 +255,7 @@ namespace MainProcessor
                 }
             }
 
-            if (!isYaml)
+            if (!isYml)
             {
                 rgx = new Regex(RegexRawHtmlLinks);
                 matches = rgx.Matches(content);
