@@ -1,4 +1,4 @@
-﻿namespace ConsoleApp
+namespace ConsoleApp
 {
     #region Using
     using System;
@@ -182,7 +182,7 @@
 
             FilesCollector filesCollector = new FilesCollector(Logger);
             Logger.LogInfo("Collecting files, it may take awhile...");
-            string[] files = filesCollector.FindAllFiles(repoLocalRoot, "*.md", (fname, count) =>
+            string[] files = filesCollector.FindAllFiles(repoLocalRoot, "*.md|*.yml", (fname, count) =>
             {
                 Console.SetCursorPosition(0, Console.CursorTop);
                 Console.CursorVisible = false;
