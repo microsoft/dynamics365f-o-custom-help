@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace ConsoleApp
 {
@@ -32,7 +32,6 @@ namespace ConsoleApp
             "th-th",
             "tr-tr",
             "zh-cn",
-            "en",
             "ar",
             "cs",
             "da",
@@ -54,8 +53,7 @@ namespace ConsoleApp
             "ru",
             "sv",
             "th",
-            "tr",
-            "zh"
+            "tr"
         };
     }
 }
