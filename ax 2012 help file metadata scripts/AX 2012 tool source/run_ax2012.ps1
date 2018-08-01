@@ -131,25 +131,37 @@ function Process-Meta([string]$SourcePath, [string]$OutPath)
 
 function Process-Htm([string]$OutPath)
 {
-    Write-Host "Renaming HTMs to HTMLs"
+    Write-Host "Processing HTM links and file extensions"
     $Files = Get-ChildItem $OutPath | Where-Object {$_.Name.EndsWith(".htm")}
-    $Links = $Files | ForEach-Object {@{Old = $_.Name; New = $_.Name + "l"}}
     $Counter = 0
     foreach ($File in $Files)
     {
         Write-Progress -Activity "Replace htm with html" -Status "Current file" -PercentComplete (100 * $Counter/$Files.Length) -CurrentOperation $File.FullName
+        $updated = $false
         $Content = [System.IO.File]::ReadAllText($File.FullName)
-        if ($Content -contains ".htm")
+        $Captured = $Content | Select-String -Pattern 'href\s*=\s*"(.+\.htm)"' -AllMatches
+        for ($i = 0; $i -lt $Captured.Matches.Count; $i++)
         {
-            $Links | ForEach-Object {$Content = $Content -replace $_.Old, $_.New}
+            $Uri = $null
+            $Href =  $Captured.Matches[$i].Groups[1].Value
+            if (-not ([System.Uri]::TryCreate($Href, [System.UriKind]::Absolute, [ref] $Uri)))
+            {
+                $UpdatedHref = $Href + "l"# htm -> html
+                $Content = $Content -replace $Href,$UpdatedHref
+                $updated = $true   
+            }
+        }
+        if ($Updated)
+        {
             $Content | Out-File -FilePath $File.FullName
+            Write-Host ("Replaced HTM links in file: '{0}'" -f $File.FullName)
         }
 
         $Html = $File.FullName + "l"
         Move-Item -Path $File.FullName -Destination $Html -Force
         $Counter++
     }
-    Write-Host "Renaming complete"
+    Write-Host "Processing complete"
 }
 
 Process-Meta -SourcePath $SourcePath -OutPath $OutPath
