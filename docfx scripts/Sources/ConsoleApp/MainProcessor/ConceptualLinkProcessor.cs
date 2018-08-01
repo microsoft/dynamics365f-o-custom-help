@@ -108,7 +108,7 @@ namespace MainProcessor
                     }
                     catch (Exception ex)
                     {
-                        Logger.LogWarning(ex.Message);
+                        Logger.LogWarning($"Message: \"{ex.Message}\", File: \"{fname}\", Href: \"{link.Link}\"");
                     }
                 }
 
@@ -130,7 +130,7 @@ namespace MainProcessor
                     }
                     catch (Exception ex)
                     {
-                        Logger.LogWarning(ex.Message);
+                        Logger.LogWarning($"Message: \"{ex.Message}\", File: \"{fname}\", Link1: \"{picture.Link1}\", Link2: \"{picture.Link2}\"");
                     }
                 }
 
@@ -161,7 +161,7 @@ namespace MainProcessor
                     }
                     catch (Exception ex)
                     {
-                        Logger.LogWarning(ex.Message);
+                        Logger.LogWarning($"Message: \"{ex.Message}\", File: \"{fname}\", Href: \"{link.Link}\"");
                     }
                 }
                 return HasModified;
