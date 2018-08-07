@@ -35,7 +35,7 @@ namespace MainProcessor
         /// <summary>
         /// The regex for the links in YAML file (group 1 - title, group 2 - link)
         /// </summary>
-        private const string RegexYmlLinks = @"name\s*:\s*\'?(.*?)\'?\s*href\s*:\s*([^\r\n]+)";
+        private const string RegexYmlLinks = @"name\s*:\s*[\'""]?(.*?)[\'""]?\s*href\s*:\s*([^\r\n]+)";
         #endregion
 
         #region Private Fields
