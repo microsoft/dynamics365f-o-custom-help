@@ -1,130 +1,168 @@
-param (
-    [string]$sourcePath = $( Read-Host "Please specify source path with AX 2012 HTML files" ),
-	[string]$outPath = $( Read-Host "Please specify destination path for processed AX 2012 HTML files" )
+param(
+    [string]$SourcePath = $( Read-Host "Please specify source path with AX 2012 HTML files" ),
+    [string]$OutPath = $( Read-Host "Please specify destination path for processed AX 2012 HTML files" )
  )
 
-If(!(test-path $sourcePath))
+if(-not(Test-Path $SourcePath))
 {
-	Write-Error -Message ("Error: The source path doesn't exist: " + $sourcePath) -Category ResourceUnavailable -CategoryReason "Specified path could not be found"
-	return
+    Write-Error -Message ("Error: The source path doesn't exist: " + $SourcePath) -Category ResourceUnavailable -CategoryReason "Specified path could not be found"
+    return
 }
 
-If(!(test-path $outPath))
+if(-not(Test-Path $OutPath))
 {
-	Write-Host "Creating directory" $outPath
-	New-Item -ItemType Directory -Force -Path $outPath
+    Write-Host "Creating directory" $OutPath
+    New-Item -ItemType Directory -Force -Path $OutPath
 }
 
-$metas = @('<meta name="ms.search.region" content="Global" />',
-    '<meta name="ms.search.scope" content="Operations, Core" />',
-    '<meta name="ms.dyn365.ops.version" content="AX 7.0.0" />',
-    '<meta name="ms.search.validFrom" content="2016-05-31" />',
-    '<meta name="ms.search.industry" content="cross" />')
+function Process-Meta([string]$SourcePath, [string]$OutPath)
+{
+    $Metas = @('<meta name="ms.search.region" content="Global" />',
+        '<meta name="ms.search.scope" content="Operations, Core" />',
+        '<meta name="ms.dyn365.ops.version" content="AX 7.0.0" />',
+        '<meta name="ms.search.validFrom" content="2016-05-31" />',
+        '<meta name="ms.search.industry" content="cross" />')
 
-$patternMetaWithSpaces = '\s*?<meta name="Microsoft.Help.F1".*?\/>'
-$patternMeta = '<meta name="Microsoft.Help.F1".*?\/>'
-$patternName = 'name=["|''](.*?)["|'']'
-$patternContent = 'content=["|''](.*?)["|'']'
-$patternGuid = '(^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?;?(.*)'
-$patternEnd1 = '(\.+)(?=[^.]*$)(.*[^:;\s])(?:[:;\s$])'
-$patternEnd2 = '(\.+)(?=[^.]*$)(.*[^:;\s])(?:[:;\s$])?'
-$patternHeadEnd = '\s*?<\/head>'
+    $PatternMetaWithSpaces = '\s*?<meta name="Microsoft.Help.F1".*?\/>'
+    $PatternMeta = '<meta name="Microsoft.Help.F1".*?\/>'
+    $PatternName = 'name=["|''](.*?)["|'']'
+    $PatternContent = 'content=["|''](.*?)["|'']'
+    $PatternGuid = '(^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?;?(.*)'
+    $PatternEnd1 = '(\.+)(?=[^.]*$)(.*[^:;\s])(?:[:;\s$])'
+    $PatternEnd2 = '(\.+)(?=[^.]*$)(.*[^:;\s])(?:[:;\s$])?'
+    $PatternHeadEnd = '\s*?<\/head>'
 
-$filesProcessed = 0
-$filesFailed = 0
+    $FilesProcessed = 0
+    $FilesFailed = 0
 
-$files = Get-ChildItem $sourcePath -Filter *.htm
-Write-Host "Processing" $files.Length "files. Please wait..."
-	foreach ($file in $files)
-	{
-		$sr = New-Object System.IO.StreamReader ($file.FullName)
-		$content = $sr.ReadToEnd()
-		$sr.Close()
+    $Files = Get-ChildItem $SourcePath -Filter *.htm
+    $Counter = 0
+    Write-Host "Processing" $Files.Length "files. Please wait..."
+    foreach ($File in $Files)
+    {
+        Write-Progress -Activity "Metadata processing" -Status "Current file" -CurrentOperation $File.FullName -PercentComplete (100 * $Counter/$Files.Length)
+        $Content = [System.IO.File]::ReadAllText($File.FullName)
+        if ($Content -match $PatternMetaWithSpaces)
+        {
+            $MetaString = $Matches[0]
+        
+            if ($Content -match $PatternHeadEnd)
+            {
+                $MetaString = $MetaString -replace "`n|`r"
+                $SpacesCount = $MetaString.IndexOf("<")
+                $SpacesForMetas = ""
+                for ($i = 1; $i -le $SpacesCount; $i++)
+                {
+                    $SpacesForMetas = $SpacesForMetas + " "
+                }
+        
+                #Write-Host "META:" $MetaString
+                if ($MetaString -match $PatternContent)
+                {
+                    $AttrContent = $Matches[1]
+                    #Write-Host "ATTR.CONTENT:" $AttrContent
+                    $newAttrContent = ""
+                    if ($AttrContent -match $PatternGuid)
+                    {
+                        $newAttrContent = $Matches[1]
+                        #Write-Host "GUID:" $newAttrContent
+                    }
+            
+                    $AfterGuid = $Matches[2]
+            
+                    if ($AfterGuid -match $PatternEnd1)
+                    {
+                        $AfterGuid = $Matches[2]
+                    }
+                    elseif ($AfterGuid -match $PatternEnd2)
+                    {
+                        $AfterGuid = $Matches[2]
+                    }
+            
+                    #Write-Host "AFTER GUID:" $AfterGuid
+            
+                    if ($AfterGuid -is [string] -AND $AfterGuid.Trim() -ne "")
+                    {
+                        $newAttrContent = $newAttrContent + "; " + $AfterGuid;
+                    }
+                    #Write-Host "NEW ATTR. CONTENT:" $newAttrContent
+            
+                    $MetaString = ($MetaString.Trim() -replace $PatternContent, ('content="' + $newAttrContent + '"'))
+                    $MetaString = ($MetaString -replace $PatternName, 'name="ms.search.form"')
+                    $Content = $Content -replace $PatternMeta, $MetaString
+            
+                    if ($Content -match $PatternHeadEnd)
+                    {
+                        $HeadEndString = $Matches[0]
+                
+                        $A = $Metas -join ("`n" + $SpacesForMetas)
+                        $Content = $Content -replace $PatternHeadEnd, ("`n" + $SpacesForMetas + $A + $HeadEndString)
+                    }
 
-		If ($content -match $patternMetaWithSpaces)
-		{
-			$metaString = $Matches[0]
-		
-			If ($content -match $patternHeadEnd)
-			{
-				$metaString = $metaString -replace "`n|`r"
-				$spacesCount = $metaString.IndexOf("<")
-				$spacesForMetas = ""
-				for ($i = 1; $i -le $spacesCount; $i++)
-				{
-					$spacesForMetas = $spacesForMetas + " "
-				}
-		
-				#Write-Host "META:" $metaString
-				If ($metaString -match $patternContent)
-				{
-					$attrContent = $Matches[1]
-					#Write-Host "ATTR.CONTENT:" $attrContent
-					$newAttrContent = ""
-					If ($attrContent -match $patternGuid)
-					{
-						$newAttrContent = $Matches[1]
-						#Write-Host "GUID:" $newAttrContent
-					}
-			
-					$afterGuid = $Matches[2]
-			
-					If ($afterGuid -match $patternEnd1)
-					{
-						$afterGuid = $Matches[2]
-					}
-					ElseIf ($afterGuid -match $patternEnd2)
-					{
-						$afterGuid = $Matches[2]
-					}
-			
-					#Write-Host "AFTER GUID:" $afterGuid
-			
-					If ($afterGuid -is [string] -AND $afterGuid.Trim() -ne "")
-					{
-						$newAttrContent = $newAttrContent + "; " + $afterGuid;
-					}
-					#Write-Host "NEW ATTR. CONTENT:" $newAttrContent
-			
-					$metaString = ($metaString.Trim() -replace $patternContent, ('content="' + $newAttrContent + '"'))
-					$metaString = ($metaString -replace $patternName, 'name="ms.search.form"')
-					$content = $content -replace $patternMeta, $metaString
-			
-					If ($content -match $patternHeadEnd)
-					{
-						$headEndString = $Matches[0]
-				
-						$a = $metas -join ("`n" + $spacesForMetas)
-						$content = $content -replace $patternHeadEnd, ("`n" + $spacesForMetas + $a + $headEndString)
-					}
+                    $Content | Out-File -FilePath (Join-Path -Path $OutPath -ChildPath $File.Name)
+                    $FilesProcessed++
+                }
+                else
+                {
+                    Write-Error -Message "Error: Attribute CONTENT doesn't exist" -Category InvalidData
+                    $FilesFailed++
+                }
+            }
+            else
+            {
+                Write-Error -Message "Error: </HEAD> doesn't exist" -Category InvalidData
+                $FilesFailed++
+            }
+        }
+        else
+        {
+            Write-Error -Message "Error: META doesn't exist" -Category InvalidData
+            $FilesFailed++
+        }
+        $Counter++
+    }
 
-					$sw = New-Object System.IO.StreamWriter ($outPath + "\" + $file.Name)
-					$sw.WriteLine($content)
-					$sw.Close()
-					$filesProcessed++
-					#break
-				}
-				Else
-				{
-					Write-Error -Message "Error: Attribute CONTENT doesn't exist" -Category InvalidData
-					$filesFailed++
-				}
-			}
-			Else
-			{
-				Write-Error -Message "Error: </HEAD> doesn't exist" -Category InvalidData
-				$filesFailed++
-			}
-		}
-		Else
-		{
-			Write-Error -Message "Error: META doesn't exist" -Category InvalidData
-			$filesFailed++
-		}
-	}
+    Write-Host "Files processed:" $FilesProcessed
+    if ($FilesFailed -gt 0)
+    {
+        Write-Host "Files failed:" $FilesFailed
+    }
+}
 
-	Write-Host "Files processed:" $filesProcessed
-	If ($filesFailed -gt 0)
-	{
-		Write-Host "Files failed:" $filesFailed
-	}
+function Process-Htm([string]$OutPath)
+{
+    Write-Host "Processing HTM links and file extensions"
+    $Files = Get-ChildItem $OutPath | Where-Object {$_.Name.EndsWith(".htm")}
+    $Counter = 0
+    foreach ($File in $Files)
+    {
+        Write-Progress -Activity "Replace htm with html" -Status "Current file" -PercentComplete (100 * $Counter/$Files.Length) -CurrentOperation $File.FullName
+        $updated = $false
+        $Content = [System.IO.File]::ReadAllText($File.FullName)
+        $Captured = $Content | Select-String -Pattern 'href\s*=\s*"(.+\.htm)"' -AllMatches
+        for ($i = 0; $i -lt $Captured.Matches.Count; $i++)
+        {
+            $Uri = $null
+            $Href =  $Captured.Matches[$i].Groups[1].Value
+            if (-not ([System.Uri]::TryCreate($Href, [System.UriKind]::Absolute, [ref] $Uri)))
+            {
+                $UpdatedHref = $Href + "l"# htm -> html
+                $Content = $Content -replace $Href,$UpdatedHref
+                $updated = $true   
+            }
+        }
+        if ($Updated)
+        {
+            $Content | Out-File -FilePath $File.FullName
+            Write-Host ("Replaced HTM links in file: '{0}'" -f $File.FullName)
+        }
+
+        $Html = $File.FullName + "l"
+        Move-Item -Path $File.FullName -Destination $Html -Force
+        $Counter++
+    }
+    Write-Host "Processing complete"
+}
+
+Process-Meta -SourcePath $SourcePath -OutPath $OutPath
+Process-Htm -OutPath $OutPath

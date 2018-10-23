@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -36,7 +36,9 @@ namespace MainProcessor
         public string[] FindAllFiles(string path, string mask, FindFilesHandler handler = null)
         {
             List<string> files = new List<string>();
-            FindAllFilesRecursively(path, mask, files, handler);
+            string[] patterns = mask.Split('|');
+            foreach (string pattern in patterns)
+                FindAllFilesRecursively(path, pattern, files, handler);
             return files.ToArray();
         }
 
@@ -59,11 +61,6 @@ namespace MainProcessor
 
                 foreach (string d in Directory.GetDirectories(path))
                 {
-                    //foreach (string f in Directory.GetFiles(d, mask))
-                    //{
-                    //    list.Add(f);
-                    //    handler?.Invoke(f, list.Count);
-                    //}
                     FindAllFilesRecursively(d, mask, list, handler);
                 }
             }
