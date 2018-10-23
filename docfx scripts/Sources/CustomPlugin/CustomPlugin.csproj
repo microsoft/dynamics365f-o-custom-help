@@ -30,41 +30,41 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="HtmlAgilityPack, Version=1.4.9.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
-      <HintPath>..\ConsoleApp\packages\HtmlAgilityPack.1.4.9\lib\Net45\HtmlAgilityPack.dll</HintPath>
+    <Reference Include="HtmlAgilityPack, Version=1.8.5.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
+      <HintPath>..\ConsoleApp\packages\HtmlAgilityPack.1.8.5\lib\Net45\HtmlAgilityPack.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.DocAsCode.Build.Common, Version=2.28.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\ConsoleApp\packages\Microsoft.DocAsCode.Build.Common.2.28.1\lib\net461\Microsoft.DocAsCode.Build.Common.dll</HintPath>
+    <Reference Include="Microsoft.DocAsCode.Build.Common, Version=2.36.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\ConsoleApp\packages\Microsoft.DocAsCode.Build.Common.2.36.2\lib\net461\Microsoft.DocAsCode.Build.Common.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.DocAsCode.Build.ConceptualDocuments, Version=2.28.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\ConsoleApp\packages\Microsoft.DocAsCode.Build.ConceptualDocuments.2.28.1\lib\net461\Microsoft.DocAsCode.Build.ConceptualDocuments.dll</HintPath>
+    <Reference Include="Microsoft.DocAsCode.Build.ConceptualDocuments, Version=2.36.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\ConsoleApp\packages\Microsoft.DocAsCode.Build.ConceptualDocuments.2.36.2\lib\net461\Microsoft.DocAsCode.Build.ConceptualDocuments.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.DocAsCode.Build.TableOfContents, Version=2.28.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\ConsoleApp\packages\Microsoft.DocAsCode.Build.TableOfContents.2.28.1\lib\net461\Microsoft.DocAsCode.Build.TableOfContents.dll</HintPath>
+    <Reference Include="Microsoft.DocAsCode.Build.TableOfContents, Version=2.36.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\ConsoleApp\packages\Microsoft.DocAsCode.Build.TableOfContents.2.36.2\lib\net461\Microsoft.DocAsCode.Build.TableOfContents.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.DocAsCode.Common, Version=2.28.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\ConsoleApp\packages\Microsoft.DocAsCode.Common.2.28.1\lib\net461\Microsoft.DocAsCode.Common.dll</HintPath>
+    <Reference Include="Microsoft.DocAsCode.Common, Version=2.36.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\ConsoleApp\packages\Microsoft.DocAsCode.Common.2.36.2\lib\net461\Microsoft.DocAsCode.Common.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.DocAsCode.DataContracts.Common, Version=2.28.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\ConsoleApp\packages\Microsoft.DocAsCode.DataContracts.Common.2.28.1\lib\net461\Microsoft.DocAsCode.DataContracts.Common.dll</HintPath>
+    <Reference Include="Microsoft.DocAsCode.DataContracts.Common, Version=2.36.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\ConsoleApp\packages\Microsoft.DocAsCode.DataContracts.Common.2.36.2\lib\net461\Microsoft.DocAsCode.DataContracts.Common.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.DocAsCode.DataContracts.ManagedReference, Version=2.28.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\ConsoleApp\packages\Microsoft.DocAsCode.DataContracts.ManagedReference.2.28.1\lib\net461\Microsoft.DocAsCode.DataContracts.ManagedReference.dll</HintPath>
+    <Reference Include="Microsoft.DocAsCode.DataContracts.ManagedReference, Version=2.36.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\ConsoleApp\packages\Microsoft.DocAsCode.DataContracts.ManagedReference.2.36.2\lib\net461\Microsoft.DocAsCode.DataContracts.ManagedReference.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.DocAsCode.Dfm, Version=2.28.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\ConsoleApp\packages\Microsoft.DocAsCode.Dfm.2.28.1\lib\net461\Microsoft.DocAsCode.Dfm.dll</HintPath>
+    <Reference Include="Microsoft.DocAsCode.Dfm, Version=2.36.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\ConsoleApp\packages\Microsoft.DocAsCode.Dfm.2.36.2\lib\net461\Microsoft.DocAsCode.Dfm.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.DocAsCode.MarkdownLite, Version=2.28.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\ConsoleApp\packages\Microsoft.DocAsCode.MarkdownLite.2.28.1\lib\net461\Microsoft.DocAsCode.MarkdownLite.dll</HintPath>
+    <Reference Include="Microsoft.DocAsCode.MarkdownLite, Version=2.36.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\ConsoleApp\packages\Microsoft.DocAsCode.MarkdownLite.2.36.2\lib\net461\Microsoft.DocAsCode.MarkdownLite.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.DocAsCode.Plugins, Version=2.28.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\ConsoleApp\packages\Microsoft.DocAsCode.Plugins.2.28.1\lib\net461\Microsoft.DocAsCode.Plugins.dll</HintPath>
+    <Reference Include="Microsoft.DocAsCode.Plugins, Version=2.36.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\ConsoleApp\packages\Microsoft.DocAsCode.Plugins.2.36.2\lib\net461\Microsoft.DocAsCode.Plugins.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.DocAsCode.YamlSerialization, Version=2.28.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\ConsoleApp\packages\Microsoft.DocAsCode.YamlSerialization.2.28.1\lib\net461\Microsoft.DocAsCode.YamlSerialization.dll</HintPath>
+    <Reference Include="Microsoft.DocAsCode.YamlSerialization, Version=2.36.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\ConsoleApp\packages\Microsoft.DocAsCode.YamlSerialization.2.36.2\lib\net461\Microsoft.DocAsCode.YamlSerialization.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\ConsoleApp\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\ConsoleApp\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Collections.Immutable, Version=1.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -77,23 +77,22 @@
     <Reference Include="System.Composition.Convention, Version=1.0.31.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\ConsoleApp\packages\System.Composition.Convention.1.0.31\lib\portable-net45+win8+wp8+wpa81\System.Composition.Convention.dll</HintPath>
     </Reference>
-    <Reference Include="System.Composition.Hosting, Version=1.0.32.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\ConsoleApp\packages\System.Composition.Hosting.1.1.0\lib\netstandard2.0\System.Composition.Hosting.dll</HintPath>
+    <Reference Include="System.Composition.Hosting, Version=1.0.33.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\ConsoleApp\packages\System.Composition.Hosting.1.2.0\lib\netstandard2.0\System.Composition.Hosting.dll</HintPath>
     </Reference>
-    <Reference Include="System.Composition.Runtime, Version=1.0.32.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\ConsoleApp\packages\System.Composition.Runtime.1.1.0\lib\netstandard2.0\System.Composition.Runtime.dll</HintPath>
+    <Reference Include="System.Composition.Runtime, Version=1.0.33.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\ConsoleApp\packages\System.Composition.Runtime.1.2.0\lib\netstandard2.0\System.Composition.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="System.Composition.TypedParts, Version=1.0.31.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\ConsoleApp\packages\System.Composition.TypedParts.1.0.31\lib\portable-net45+win8+wp8+wpa81\System.Composition.TypedParts.dll</HintPath>
     </Reference>
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.IO.Compression, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Web" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-    <Reference Include="YamlDotNet, Version=4.2.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\ConsoleApp\packages\YamlDotNet.4.2.2\lib\net35\YamlDotNet.dll</HintPath>
+    <Reference Include="YamlDotNet, Version=0.0.0.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e, processorArchitecture=MSIL">
+      <HintPath>..\ConsoleApp\packages\YamlDotNet.Signed.5.0.1\lib\net45\YamlDotNet.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
