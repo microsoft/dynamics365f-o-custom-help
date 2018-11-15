@@ -2,12 +2,14 @@
 Creating Datasource,Index,Indexer from RestApi:-
 
 Content-Type: Application\JSON
-api-key: (Azure Search Primary Key)
+api-key: (Azure Search Admin Key)
 Auth: no auth
-POST mode for Datasource,Index and Indexer.
 
 
 Create datasource:
+POST https://[service name].search.windows.net/datasources?api-version=2017-11-11
+
+Request Body
 {
     "name" : "[DataSourceName]",
     "type" : "azureblob",
@@ -17,25 +19,31 @@ Create datasource:
 
 
 Create index:
+POST https://[servicename].search.windows.net/indexes?api-version=2017-11-11
 
+Request Body
 {
-      "name" : "[IndexName]",
-      "fields": [
-         { "name": "id", "type": "Edm.String", "key": true,"searchable": true, "filterable": true, "sortable": true, "facetable": true }  ,
-        { "name": "title", "type": "Edm.String", "searchable": true, "filterable": true, "sortable": true, "facetable": true }  ,
+    "name" : "[IndexName]",
+    "fields": [
+        { "name": "id", "type": "Edm.String", "key": true,"searchable": true, "filterable": true, "sortable": true, "facetable": true },
+        { "name": "title", "type": "Edm.String", "searchable": true, "filterable": true, "sortable": true, "facetable": true, "analyzer":"[AnalyzerName]" },
         { "name": "ms_search_form", "type": "Edm.String", "searchable": true, "filterable": true, "sortable": true, "facetable": true },
         { "name": "ms_search_region", "type": "Edm.String", "searchable": true, "filterable": true, "sortable": true, "facetable": true },
         { "name": "ms_locale", "type": "Edm.String", "searchable": true, "filterable": true, "sortable": true, "facetable": true },
         { "name": "metadata_storage_path", "type": "Edm.String", "searchable": true, "filterable": true, "sortable": true, "facetable": true },
         { "name": "metadata_storage_name", "type": "Edm.String", "searchable": true, "filterable": true, "sortable": true, "facetable": true },
         { "name": "metadata_storage_content_type", "type": "Edm.String", "searchable": true, "filterable": false, "sortable": false, "facetable": false },
-        { "name": "description",  "type": "Edm.String", "searchable": true, "filterable": true, "sortable": true, "facetable": true }
-        ]
+        { "name": "description", "type": "Edm.String", "searchable": true, "filterable": true, "sortable": true, "facetable": true, "analyzer":" [AnalyzerName]" }
+    ]
 }
 
+
 Create indexer with field mapping:
+POST https://[service name].search.windows.net/indexers?api-version=2017-11-11
+
+Request Body
 {
-  "name" : "[IndexName]",
+  "name" : "[IndexerName]",
   "dataSourceName" : "[DataSourceName]",
   "targetIndexName" : "[IndexName]",
   "schedule" : { "interval" : "PT10H" },
