@@ -1,7 +1,7 @@
 
 Creating Datasource,Index,Indexer from RestApi:-
 
-Content-Type: Application\JSON
+Content-Type: Application/JSON
 api-key: (Azure Search Admin Key)
 Auth: no auth
 
