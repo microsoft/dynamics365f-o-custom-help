@@ -1,0 +1,3 @@
+## Allow executable files in this folder
+!*.dll
+!*.exe

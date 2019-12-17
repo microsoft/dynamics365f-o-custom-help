@@ -52,7 +52,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HelpLocale.cs" />
     <Compile Include="HTMLDirectory.cs" />
     <Compile Include="HTMLtoJSONProcessor.cs" />
     <Compile Include="JSONDirectory.cs" />
