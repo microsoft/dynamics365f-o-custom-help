@@ -120,39 +120,39 @@ namespace AzureSearchCustomHelp
             if (isValidConfig != null)
             {
                 List<UsersConfigMapConfigElement> languages = UsersConfigMapSection.Config.SettingsList.ToList<UsersConfigMapConfigElement>();
-                UsersConfigMapConfigElement langaugeIndexes = languages.Where(l => l.PrimaryLanguage.ToLower() == primaryLanguage.ToLower()).FirstOrDefault();
-                if (langaugeIndexes != null)
+                UsersConfigMapConfigElement languageIndexes = languages.Where(l => l.PrimaryLanguage.ToLower() == primaryLanguage.ToLower()).FirstOrDefault();
+                if (languageIndexes != null)
                 {
-                    if (!string.IsNullOrEmpty(langaugeIndexes.ParentLanguage))
+                    if (!string.IsNullOrEmpty(languageIndexes.ParentLanguage))
                     {
-                        UsersConfigMapConfigElement parentLanguage = languages.Where(l => l.PrimaryLanguage.ToLower() == langaugeIndexes.ParentLanguage.ToLower()).FirstOrDefault();
+                        UsersConfigMapConfigElement parentLanguage = languages.Where(l => l.PrimaryLanguage.ToLower() == languageIndexes.ParentLanguage.ToLower()).FirstOrDefault();
                         if (parentLanguage != null)
                         {
                             if (!string.IsNullOrEmpty(parentLanguage.ParentIndex))
                             {
-                                langaugeIndexes.ParentLanguage = parentLanguage.PrimaryLanguage;
-                                langaugeIndexes.ParentIndex = parentLanguage.ParentIndex;
+                                languageIndexes.ParentLanguage = parentLanguage.PrimaryLanguage;
+                                languageIndexes.ParentIndex = parentLanguage.ParentIndex;
                             }
                         }
                        
                     }
                     else
                     {
-                        if (!string.IsNullOrEmpty(langaugeIndexes.ParentIndex))
+                        if (!string.IsNullOrEmpty(languageIndexes.ParentIndex))
                         {
-                            if (string.IsNullOrEmpty(langaugeIndexes.Index))
+                            if (string.IsNullOrEmpty(languageIndexes.Index))
                             {
-                                langaugeIndexes.Index = langaugeIndexes.ParentIndex;
+                                languageIndexes.Index = languageIndexes.ParentIndex;
                             }
                         }
                     }
                 }
                 else if (!string.IsNullOrEmpty(ultimateSearchServiceIndex))
                 {
-                    langaugeIndexes = new UsersConfigMapConfigElement();
-                    langaugeIndexes.Index = ultimateSearchServiceIndex;
+                    languageIndexes = new UsersConfigMapConfigElement();
+                    languageIndexes.Index = ultimateSearchServiceIndex;
                 }
-                return langaugeIndexes;
+                return languageIndexes;
             }
             return null;
         }

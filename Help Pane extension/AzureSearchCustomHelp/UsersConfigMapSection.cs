@@ -24,7 +24,7 @@ namespace AzureSearchCustomHelp
                     ExeConfigurationFileMap customConfigFileMap = new ExeConfigurationFileMap();
                     customConfigFileMap.ExeConfigFilename = Path.Combine(Path.GetDirectoryName((new System.Uri(Assembly.GetExecutingAssembly().CodeBase)).LocalPath), languageConfigFile);
                     Configuration customConfig = ConfigurationManager.OpenMappedExeConfiguration(customConfigFileMap, ConfigurationUserLevel.None);
-                    config = customConfig.GetSection("langauagesection") as UsersConfigMapSection;
+                    config = customConfig.GetSection("languagesection") as UsersConfigMapSection;
                     return config;
                 }
                 catch (Exception )
