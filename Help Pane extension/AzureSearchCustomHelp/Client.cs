@@ -1,15 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Runtime.CompilerServices;
-using System.Threading;
 using Microsoft.Azure.Search;
 using Microsoft.Azure.Search.Models;
-using System.Diagnostics;
-using System.Globalization;
-using System.Configuration;
 using System.IO;
 using System.Reflection;
 using System.Net;
@@ -19,40 +12,132 @@ namespace AzureSearchCustomHelp
 {
     public class Client
     {
-        string searchServiceName = string.Empty;
-        string searchServiceIndex = string.Empty;
-        string queryApiKey = string.Empty;
-        static string ultimateSearchServiceIndex = string.Empty;
-        static string ultimateLanguage = string.Empty;
-        static UsersConfigMapConfigElement languageConfigValues = null;
-        static IndexName ultimateIndexNameFromAzure = new IndexName();
-        static IndexName primaryIndexNameFromAzure = new IndexName();
-        static IndexName parentIndexNameFromAzure = new IndexName();
-        List<IndexName> indexList = new List<IndexName>();
+        private string searchServiceName = string.Empty;
+        private string queryApiKey = string.Empty;
+        private SearchIndexClient primaryIndexClient = null;
+        private SearchIndexClient parentIndexClient = null;
+        private SearchIndexClient ultimateIndexClient = null;
+        private string parentLanguage = string.Empty;
+        private string ultimateLanguage = string.Empty;
 
-        private bool ValidateUlimateSearchServiceIndex()
+        public Boolean SetConfig(string _serviceName, string _queryKey, string _primaryLanguage)
         {
-            bool isIndexFound;
-            if (!string.IsNullOrEmpty(ultimateSearchServiceIndex))
+            this.searchServiceName = _serviceName;
+            this.queryApiKey = _queryKey;
+            List<IndexName> indexList = GetIndexListFromAzure();
+            if (indexList.Count > 0)
             {
-                ultimateIndexNameFromAzure = indexList.Where(i => i.name == ultimateSearchServiceIndex).FirstOrDefault();
-                isIndexFound = (ultimateIndexNameFromAzure != null) ? true : false;
+                UsersConfigMapSection config = UsersConfigMapSection.Config;
+                if (config != null)
+                {
+                    List<UsersConfigMapConfigElement> languages = config.SettingsList.ToList<UsersConfigMapConfigElement>();
+                    if (languages != null)
+                    {
+                        try
+                        {
+                            SetUltimateIndex(indexList, languages);
+                            SetParentIndex(indexList, languages, _primaryLanguage);
+                            SetPrimaryIndex(indexList, languages, _primaryLanguage);
+                        }
+                        catch (InvalidConfigurationException)
+                        {
+                            return false;
+                        }
+                    }
+                }
             }
-            else
+            return primaryIndexClient != null || parentIndexClient != null || ultimateIndexClient != null;
+        }
+
+        private void SetUltimateIndex(List<IndexName> indexList, List<UsersConfigMapConfigElement> languages)
+        {
+            UsersConfigMapConfigElement ultimateLanguageConfig = languages.Where(l => l.UltimateIndex != string.Empty).FirstOrDefault();
+            if (ultimateLanguageConfig != null && (null != indexList.Where(i => i.name == ultimateLanguageConfig.UltimateIndex).FirstOrDefault()))
             {
-                isIndexFound = true;
+                this.ultimateIndexClient = CreateSearchIndexClient(ultimateLanguageConfig.UltimateIndex);
+                this.ultimateLanguage = ultimateLanguageConfig.PrimaryLanguage;
             }
-            return isIndexFound;
+        }
+
+        private void SetPrimaryIndex(List<IndexName> indexList, List<UsersConfigMapConfigElement> languages, string primaryLanguage)
+        {
+            UsersConfigMapConfigElement primaryLanguageConfig = languages.Where(l => l.PrimaryLanguage.ToLower() == primaryLanguage.ToLower()).FirstOrDefault();
+            if (primaryLanguageConfig != null)
+            {
+                if (!string.IsNullOrEmpty(primaryLanguageConfig.Index) && (null != indexList.Where(i => i.name == primaryLanguageConfig.Index).FirstOrDefault()))
+                {
+                    //Set primaryIndex to the value of @index
+                    this.primaryIndexClient = CreateSearchIndexClient(primaryLanguageConfig.Index);
+                }
+            }
+        }
+
+        private void SetParentIndex(List<IndexName> indexList, List<UsersConfigMapConfigElement> languages, string primaryLanguage)
+        {
+            UsersConfigMapConfigElement primaryLanguageConfig = languages.Where(l => l.PrimaryLanguage.ToLower() == primaryLanguage.ToLower()).FirstOrDefault();
+            if (primaryLanguageConfig != null)
+            {
+                if (!string.IsNullOrEmpty(primaryLanguageConfig.ParentIndex) && !string.IsNullOrEmpty(primaryLanguageConfig.ParentLanguage))
+                {
+                    throw new InvalidConfigurationException("Both ParentIndex and ParentLanguage cannot be set for " + primaryLanguage);
+                }
+                if (!string.IsNullOrEmpty(primaryLanguageConfig.ParentIndex) && (null != indexList.Where(i => i.name == primaryLanguageConfig.ParentIndex).FirstOrDefault()))
+                {
+                    //Set parentIndex to the value of @parentindex.
+                    this.parentIndexClient = CreateSearchIndexClient(primaryLanguageConfig.ParentIndex);
+                    this.parentLanguage = primaryLanguageConfig.PrimaryLanguage;
+                }
+                if (!string.IsNullOrEmpty(primaryLanguageConfig.ParentLanguage))
+                {
+                    //Set the parentIndex to the value of @parentindex from the first ancestor that has @parentindex set.
+                    string ancestorLanguageWithParentIndex = GetAncestorWithParentIndexLanguage(languages, primaryLanguageConfig.ParentLanguage);
+                    if (!string.IsNullOrEmpty(ancestorLanguageWithParentIndex))
+                    {
+                        UsersConfigMapConfigElement ancestorLanguageConfig = languages.Where(l => l.PrimaryLanguage.ToLower() == ancestorLanguageWithParentIndex.ToLower()).FirstOrDefault();
+                        if (ancestorLanguageConfig != null && !string.IsNullOrEmpty(ancestorLanguageConfig.ParentIndex))
+                        {
+                            this.parentIndexClient = CreateSearchIndexClient(ancestorLanguageConfig.ParentIndex);
+                            this.parentLanguage = ancestorLanguageConfig.PrimaryLanguage;
+                        }
+                    }
+                }
+            }
+        }
+
+        private static string GetAncestorWithParentIndexLanguage(List<UsersConfigMapConfigElement> languages, string parentLanguage)
+        {
+            UsersConfigMapConfigElement currentParentLanguageConfig = languages.Where(l => l.PrimaryLanguage.ToLower() == parentLanguage.ToLower()).FirstOrDefault();
+            if (currentParentLanguageConfig != null)
+            {
+                if (!string.IsNullOrEmpty(currentParentLanguageConfig.ParentLanguage) && !string.IsNullOrEmpty(currentParentLanguageConfig.ParentIndex))
+                {
+                    //Invalid config. @parentlanguage and @parentindex cannot both be set for @language.
+                    throw new InvalidConfigurationException("Both ParentIndex and ParentLanguage cannot be set for " + parentLanguage);
+                }
+                if (!string.IsNullOrEmpty(currentParentLanguageConfig.ParentLanguage))
+                {
+                    //Look at the next ancestor.
+                    return GetAncestorWithParentIndexLanguage(languages, currentParentLanguageConfig.ParentLanguage);
+                }
+                if (!string.IsNullOrEmpty(currentParentLanguageConfig.ParentIndex))
+                {
+                    //We've found an ancestor that has a ParentIndex set so return the language.
+                    return currentParentLanguageConfig.PrimaryLanguage;
+                }
+                //Invalid config. @parentlanguage has been set, but an ancestor with a @parentindex cannot be found.
+                throw new InvalidConfigurationException("parentlanguage has been set, but an ancestor with a parentindex cannot be found");
+            }
+            throw new InvalidConfigurationException("Invalid configuration for " + parentLanguage);
         }
 
         private List<IndexName> GetIndexListFromAzure()
         {
             List<IndexName> azureIndexList = null;
             string indexListResults = null;
-            string Url = string.Format(@"https://{0}.search.windows.net/indexes?api-version=2017-11-11&$select=name", searchServiceName);
+            string Url = string.Format(@"https://{0}.search.windows.net/indexes?api-version=2017-11-11&$select=name", this.searchServiceName);
 
             WebRequest request = WebRequest.Create(Url);
-            request.Headers.Add("api-key", queryApiKey);
+            request.Headers.Add("api-key", this.queryApiKey);
             request.ContentType = "application/json";
             WebResponse response = request.GetResponse();
 
@@ -69,98 +154,72 @@ namespace AzureSearchCustomHelp
             return azureIndexList;
         }
 
-        public SearchIndexClient CreateSearchIndexClient()
+        #region Methods available in XPP
+        public static string GetParentLanguage(string primaryLanguage)
         {
-            SearchIndexClient indexClient = null;
-            return (!string.IsNullOrEmpty(searchServiceIndex)) ? new SearchIndexClient(searchServiceName, searchServiceIndex, new SearchCredentials(queryApiKey)) : indexClient;
-        }
-
-        private DocumentSearchResult<Document> GetUltimateLanguageSearchResult(string _searchString, string ultimateLanguage, string ulitmateindex)
-        {
-            searchServiceIndex = ulitmateindex;
-            return SearchResult(_searchString, ultimateLanguage);
-        }
-
-        private static string GetDefaultIndex()
-        {
-            GetUltimateLanguageAndIndex();
-            return ultimateSearchServiceIndex;
-        }
-
-        private static string GetDefaultLanguage()
-        {
-            GetUltimateLanguageAndIndex();
-            return ultimateLanguage;
-        }
-
-        private static void GetUltimateLanguageAndIndex()
-        {
-            var isValidConfig = UsersConfigMapSection.Config;
-            if (isValidConfig != null)
+            UsersConfigMapSection config = UsersConfigMapSection.Config;
+            if (config != null)
             {
-                List<UsersConfigMapConfigElement> languages = UsersConfigMapSection.Config.SettingsList.ToList<UsersConfigMapConfigElement>();
-
-                var ulimateValues = languages.Where(l => l.UlitmateIndex != string.Empty).FirstOrDefault();
-                if (ulimateValues != null)
+                List<UsersConfigMapConfigElement> languages = config.SettingsList.ToList<UsersConfigMapConfigElement>();
+                UsersConfigMapConfigElement primaryLanguageConfig = languages.Where(l => l.PrimaryLanguage.ToLower() == primaryLanguage.ToLower()).FirstOrDefault();
+                if (primaryLanguageConfig != null)
                 {
-                    ultimateSearchServiceIndex = ulimateValues.UlitmateIndex;
-                    ultimateLanguage = ulimateValues.PrimaryLanguage;
-                }
-                else
-                {
-                    ultimateSearchServiceIndex = string.Empty;
-                    ultimateLanguage = string.Empty;
-                }
-            }
-        }
-
-        private static UsersConfigMapConfigElement GetLanguageIndexes(string primaryLanguage)
-        {
-            var isValidConfig = UsersConfigMapSection.Config;
-            if (isValidConfig != null)
-            {
-                List<UsersConfigMapConfigElement> languages = UsersConfigMapSection.Config.SettingsList.ToList<UsersConfigMapConfigElement>();
-                UsersConfigMapConfigElement languageIndexes = languages.Where(l => l.PrimaryLanguage.ToLower() == primaryLanguage.ToLower()).FirstOrDefault();
-                if (languageIndexes != null)
-                {
-                    if (!string.IsNullOrEmpty(languageIndexes.ParentLanguage))
+                    if (!string.IsNullOrEmpty(primaryLanguageConfig.ParentLanguage) && !string.IsNullOrEmpty(primaryLanguageConfig.ParentIndex))
                     {
-                        UsersConfigMapConfigElement parentLanguage = languages.Where(l => l.PrimaryLanguage.ToLower() == languageIndexes.ParentLanguage.ToLower()).FirstOrDefault();
-                        if (parentLanguage != null)
-                        {
-                            if (!string.IsNullOrEmpty(parentLanguage.ParentIndex))
-                            {
-                                languageIndexes.ParentLanguage = parentLanguage.PrimaryLanguage;
-                                languageIndexes.ParentIndex = parentLanguage.ParentIndex;
-                            }
-                        }
-                       
+                        //Invalid config. @parentlanguage and @parentindex cannot both be set for @language.
+                        return string.Empty;
                     }
-                    else
+                    if (!string.IsNullOrEmpty(primaryLanguageConfig.ParentLanguage))
                     {
-                        if (!string.IsNullOrEmpty(languageIndexes.ParentIndex))
+                        try
                         {
-                            if (string.IsNullOrEmpty(languageIndexes.Index))
-                            {
-                                languageIndexes.Index = languageIndexes.ParentIndex;
-                            }
+                            return GetAncestorWithParentIndexLanguage(languages, primaryLanguageConfig.ParentLanguage);
+                        }
+                        catch (InvalidConfigurationException)
+                        {
+                            return string.Empty;
                         }
                     }
                 }
-                else if (!string.IsNullOrEmpty(ultimateSearchServiceIndex))
-                {
-                    languageIndexes = new UsersConfigMapConfigElement();
-                    languageIndexes.Index = ultimateSearchServiceIndex;
-                }
-                return languageIndexes;
             }
-            return null;
+            return string.Empty;
         }
 
-        private DocumentSearchResult<Document> SearchResult(string _searchString, string filterLanguage, string filterAnotherLanguage = "")
+        public static string GetUltimateLanguage()
+        {
+            UsersConfigMapSection config = UsersConfigMapSection.Config;
+            if (config != null)
+            {
+                List<UsersConfigMapConfigElement> languages = config.SettingsList.ToList<UsersConfigMapConfigElement>();
+                UsersConfigMapConfigElement ultimateLanguageConfig = languages.Where(l => l.UltimateIndex != string.Empty).FirstOrDefault();
+                if (ultimateLanguageConfig != null)
+                {
+                    return ultimateLanguageConfig.PrimaryLanguage;
+                }
+            }
+            return string.Empty;
+        }
+
+
+        public static bool CheckFileExists(string file)
+        {
+            string FilePath = Path.Combine(Path.GetDirectoryName((new System.Uri(Assembly.GetExecutingAssembly().CodeBase)).LocalPath), file);
+            return (File.Exists(FilePath));
+        }
+
+        #endregion
+
+        /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+        private SearchIndexClient CreateSearchIndexClient(string searchServiceIndex)
+        {
+            return (!string.IsNullOrEmpty(searchServiceIndex)) ? new SearchIndexClient(this.searchServiceName, searchServiceIndex, new SearchCredentials(this.queryApiKey)) : null;
+        }
+
+        private DocumentSearchResult<Document> ProcessSearch(SearchIndexClient searchIndexClient, string _searchString, string filterLanguage, string filterAnotherLanguage = "")
         {
             SearchParameters parameters;
-            ISearchIndexClient indexClient = CreateSearchIndexClient();
             DocumentSearchResult<Document> results = null;
             string _filter = string.Empty;
             if (string.IsNullOrEmpty(filterAnotherLanguage))
@@ -175,14 +234,14 @@ namespace AzureSearchCustomHelp
                  new SearchParameters()
                  {
                      Filter = _filter,
-                     Select = new[] { "id", "ms_locale", "ms_search_region"
-                                    ,"description","title","ms_search_form","metadata_storage_path","metadata_storage_content_type", "metadata_storage_name"}
+                     Select = new[] { "id", "ms_locale", "ms_search_region", "description", "title", "ms_search_form", "metadata_storage_path", "metadata_storage_content_type", "metadata_storage_name"},
+                     IncludeTotalResultCount = true
                  };
             try
             {
-                if (indexClient != null)
+                if (searchIndexClient != null)
                 {
-                    results = indexClient.Documents.Search<Document>(_searchString, parameters);
+                    results = searchIndexClient.Documents.Search<Document>(_searchString, parameters);
                 }
             }
             catch (Exception ex)
@@ -192,340 +251,54 @@ namespace AzureSearchCustomHelp
             return results;
         }
 
-        #region Calling Methods in XPP
-        public static string GetParentLanguage(string primaryLanguage)
-        {
-            if (languageConfigValues != null && languageConfigValues.ParentLanguage != null && primaryLanguage != "ultimatelanguage")
-            {
-                return languageConfigValues.ParentLanguage;
-            }
-            else
-            {
-                UsersConfigMapConfigElement language = null;
-                language = GetLanguageIndexes(primaryLanguage);
-                return (language != null) ? language.ParentLanguage : string.Empty;
-            }
-        }
-        public static bool CheckFileExists(string file)
-        {
-            var FilePath = Path.Combine(Path.GetDirectoryName((new System.Uri(Assembly.GetExecutingAssembly().CodeBase)).LocalPath), file);
-            if (File.Exists(FilePath))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        public static string GetUltimateLanguage()
-        {
-            var UltimateLanguage = GetDefaultLanguage();
-            return UltimateLanguage;
-        }
-
-        public Boolean SetConfig(string _serviceName, string _queryKey, string _primaryLanguage)
-        {
-            Boolean isIndexFound = false;
-            searchServiceName = _serviceName;
-            queryApiKey = _queryKey;
-            indexList = GetIndexListFromAzure();
-            if (indexList.Count > 0)
-            {
-
-                ultimateSearchServiceIndex = GetDefaultIndex();
-                ultimateLanguage = GetDefaultLanguage();
-
-                languageConfigValues = GetLanguageIndexes(_primaryLanguage);
-                if (languageConfigValues == null)
-                {
-                    isIndexFound = false;
-                }
-                else
-                {
-                    if (!string.IsNullOrEmpty(languageConfigValues.Index))
-                    {
-                        primaryIndexNameFromAzure = indexList.Where(i => i.name == languageConfigValues.Index).FirstOrDefault();
-                        if (primaryIndexNameFromAzure != null)
-                        {
-                            if (!string.IsNullOrEmpty(languageConfigValues.ParentIndex))
-                            {
-                                parentIndexNameFromAzure = indexList.Where(i => i.name == languageConfigValues.ParentIndex).FirstOrDefault();
-                                if (parentIndexNameFromAzure != null)
-                                {
-                                    isIndexFound = ValidateUlimateSearchServiceIndex();
-                                }
-                                else
-                                {
-                                    isIndexFound = false;
-                                }
-                            }
-                            else
-                            {
-                                isIndexFound = ValidateUlimateSearchServiceIndex();
-                            }
-                        }
-                        else
-                        {
-                            isIndexFound = false;
-                        }
-                    }
-                    else if (!string.IsNullOrEmpty(languageConfigValues.ParentIndex))
-                    {
-                        parentIndexNameFromAzure = indexList.Where(i => i.name == languageConfigValues.ParentIndex).FirstOrDefault();
-                        if (parentIndexNameFromAzure != null)
-                        {
-                            isIndexFound = ValidateUlimateSearchServiceIndex();
-                        }
-                        else
-                        {
-                            isIndexFound = false;
-                        }
-                    }
-                    else
-                    {
-                        isIndexFound = ValidateUlimateSearchServiceIndex();
-                    }
-                }
-            }
-            return isIndexFound;
-        }
-
         public List<Document> searchResult(string _searchString, string _filter, string _primaryLanguage, bool _tIsUserSearch = true)
         {
-            List<Document> documents = new List<Document>();
-
-            //languageConfigValues = GetLanguage(_primaryLanguage);
-            DocumentSearchResult<Document> resultDocuments = null;
-            if (languageConfigValues != null)
+            List<Document> amalgamatedDocuments = new List<Document>();
+            if (primaryIndexClient != null)
             {
-                searchServiceIndex = languageConfigValues.Index;
-
-                //Defualt Search
-                if (_tIsUserSearch == false)
+                if (parentIndexClient != null && String.Equals(primaryIndexClient.IndexName, parentIndexClient.IndexName, StringComparison.OrdinalIgnoreCase))
                 {
-                    if (languageConfigValues.PrimaryLanguage.ToLower() == ultimateLanguage.ToLower())
-                    {
-                        if (!string.IsNullOrEmpty(ultimateSearchServiceIndex))
-                        {
-                            searchServiceIndex = ultimateSearchServiceIndex;
-                        }
-                    }
-                    resultDocuments = SearchResult(_searchString, languageConfigValues.PrimaryLanguage);
+                    amalgamatedDocuments.AddRange(OrderAndProcessSearchResults(ProcessSearch(primaryIndexClient, _searchString, _primaryLanguage, parentLanguage)));
                 }
-
-                //UserSearch
                 else
                 {
-                    if (!string.IsNullOrEmpty(languageConfigValues.ParentLanguage))
-                    {
-                        //Check PrimaryIndex and ParentIndex are same
-
-                        if (languageConfigValues.Index == languageConfigValues.ParentIndex)
-                        {
-                            if (!string.IsNullOrEmpty(languageConfigValues.Index) && !string.IsNullOrEmpty(languageConfigValues.ParentIndex))
-                            {
-                                //Search in Client and Parent language only.
-                                resultDocuments = SearchResult(_searchString, languageConfigValues.PrimaryLanguage, languageConfigValues.ParentLanguage);
-                            }
-
-                            if (resultDocuments == null)
-                            {
-                                if (!string.IsNullOrEmpty(ultimateLanguage))
-                                {
-                                    if (languageConfigValues.ParentLanguage.ToLower() != ultimateLanguage.ToLower())
-                                    {
-                                        //Search in UltimateLanguage with ulitmateindex
-                                        var ultimateLanguageSearchResult = GetUltimateLanguageSearchResult(_searchString, ultimateLanguage, ultimateSearchServiceIndex.ToLower());
-                                        if (ultimateLanguageSearchResult != null)
-                                        {
-                                            resultDocuments = ultimateLanguageSearchResult;
-                                        }
-                                    }
-                                    else if (languageConfigValues.ParentLanguage.ToLower() == ultimateLanguage.ToLower() && string.IsNullOrEmpty(languageConfigValues.ParentIndex))
-                                    {
-                                        //Search in UltimateLanguage with ulitmateindex
-                                        var ultimateLanguageSearchResult = GetUltimateLanguageSearchResult(_searchString, ultimateLanguage, ultimateSearchServiceIndex.ToLower());
-                                        if (ultimateLanguageSearchResult != null)
-                                        {
-                                            resultDocuments = ultimateLanguageSearchResult;
-                                        }
-                                    }
-                                }
-                            }
-
-                            //Filter Primary Search Result
-                            else if (resultDocuments.Results.Count > 0)
-                            {
-                                //Results for Primary language
-                                var doc = resultDocuments.Results.Where(x => x.Document.ms_locale == languageConfigValues.PrimaryLanguage.ToLower()).ToList<SearchResult<Document>>();
-                                if (doc.Count > 0)
-                                {
-                                    resultDocuments.Results = doc;
-                                }
-                                else //Results with Parent Language
-                                {
-                                    if (!string.IsNullOrEmpty(ultimateLanguage))
-                                    {
-                                        if (languageConfigValues.ParentLanguage.ToLower() != ultimateLanguage.ToLower())
-                                        {
-                                            //Search in UltimateLanguage with ulitmateindex
-                                            var ultimateLanguageSearchResult = GetUltimateLanguageSearchResult(_searchString, ultimateLanguage, ultimateSearchServiceIndex.ToLower());
-                                            if (ultimateLanguageSearchResult != null)
-                                            {
-                                                foreach (var item in ultimateLanguageSearchResult.Results)
-                                                {
-                                                    resultDocuments.Results.Add(item); // Add Ulitmate Language search to Parent Language search results.
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                //Search in UltimateLanguage with ulitmateindex
-                                if (resultDocuments.Results.Count == 0)
-                                {
-                                    resultDocuments = SearchResult(_searchString, ultimateLanguage);
-                                }
-                            }
-                        }
-                        else //PrimaryIndex and ParentIndex are different
-                        {
-                            if (!string.IsNullOrEmpty(languageConfigValues.Index))  //Search in PrimaryLanguage with primaryIndex
-                            {
-                                searchServiceIndex = languageConfigValues.Index;
-                                resultDocuments = SearchResult(_searchString, languageConfigValues.PrimaryLanguage);
-                            }
-
-                            if (resultDocuments == null)
-                            {
-                                //Check parentindex and ulitmateindex are same
-                                if (languageConfigValues.ParentIndex.ToLower() == ultimateSearchServiceIndex.ToLower())
-                                {
-                                    //Search in Client and Parent language only.
-                                    resultDocuments = SearchResult(_searchString, languageConfigValues.ParentLanguage, ultimateLanguage);
-                                }
-                                else //parentindex and ulitmateindex are different
-                                {
-                                    if (!string.IsNullOrEmpty(languageConfigValues.ParentIndex)) //Search in ParentLanguage with ParentIndex
-                                    {
-                                        searchServiceIndex = languageConfigValues.ParentIndex;
-                                        resultDocuments = SearchResult(_searchString, languageConfigValues.ParentLanguage);
-                                    }
-
-                                    if (!string.IsNullOrEmpty(ultimateLanguage))
-                                    {
-                                        if (languageConfigValues.ParentLanguage.ToLower() != ultimateLanguage.ToLower())
-                                        {
-                                            //Search in UltimateLanguage with ulitmateindex
-                                            var ultimateLanguageSearchResult = GetUltimateLanguageSearchResult(_searchString, ultimateLanguage, ultimateSearchServiceIndex.ToLower());
-                                            if (ultimateLanguageSearchResult != null)
-                                            {
-                                                resultDocuments = ultimateLanguageSearchResult;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            else if (resultDocuments.Results.Count == 0)
-                            {
-                                //Check parentindex and ulitmateindex are same
-                                if (languageConfigValues.ParentIndex.ToLower() == ultimateSearchServiceIndex.ToLower())
-                                {
-                                    //Search in Client and Parent language only.
-                                    resultDocuments = SearchResult(_searchString, languageConfigValues.ParentLanguage, ultimateLanguage);
-                                }
-                                else //parentindex and ulitmateindex are different
-                                {
-                                    if (!string.IsNullOrEmpty(languageConfigValues.ParentIndex)) //Search in ParentLanguage with ParentIndex
-                                    {
-                                        searchServiceIndex = languageConfigValues.ParentIndex;
-                                        resultDocuments = SearchResult(_searchString, languageConfigValues.ParentLanguage);
-                                    }
-
-                                    if (!string.IsNullOrEmpty(ultimateLanguage))
-                                    {
-                                        if (languageConfigValues.ParentLanguage.ToLower() != ultimateLanguage.ToLower())
-                                        {
-                                            //Search in UltimateLanguage with ulitmateindex
-                                            var ultimateLanguageSearchResult = GetUltimateLanguageSearchResult(_searchString, ultimateLanguage, ultimateSearchServiceIndex.ToLower());
-                                            if (ultimateLanguageSearchResult != null)
-                                            {
-                                                if (resultDocuments == null)
-                                                {
-                                                    resultDocuments = new DocumentSearchResult<Document>();
-                                                }
-                                                foreach (var item in ultimateLanguageSearchResult.Results)
-                                                {
-                                                    resultDocuments.Results.Add(item); // Add Ulitmate Language search to Parent Language search results.
-                                                }
-                                            }
-                                        }
-                                        else if(languageConfigValues.ParentIndex.ToLower()!= ultimateSearchServiceIndex.ToLower())
-                                        {
-                                            //Search in UltimateLanguage with ulitmateindex
-                                            var ultimateLanguageSearchResult = GetUltimateLanguageSearchResult(_searchString, ultimateLanguage, ultimateSearchServiceIndex.ToLower());
-                                            if (ultimateLanguageSearchResult != null)
-                                            {
-                                                if (resultDocuments == null)
-                                                {
-                                                    resultDocuments = new DocumentSearchResult<Document>();
-                                                }
-                                                foreach (var item in ultimateLanguageSearchResult.Results)
-                                                {
-                                                    resultDocuments.Results.Add(item); // Add Ulitmate Language search to Parent Language search results.
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        //Search in Client Language only.
-                        resultDocuments = SearchResult(_searchString, languageConfigValues.PrimaryLanguage);
-                        if (resultDocuments == null && !string.IsNullOrEmpty(ultimateLanguage) && _searchString != null && _tIsUserSearch == true)
-                        {
-                            //Search in UltimateLanguage with ulitmateindex
-                            resultDocuments = GetUltimateLanguageSearchResult(_searchString, ultimateLanguage, ultimateSearchServiceIndex.ToLower());
-                        }
-                        else if (resultDocuments != null && !string.IsNullOrEmpty(ultimateLanguage) && resultDocuments.Results.Count == 0 && _searchString != null && _tIsUserSearch == true)
-                        {
-                            //Search in UltimateLanguage with ulitmateindex
-                            resultDocuments = GetUltimateLanguageSearchResult(_searchString, ultimateLanguage, ultimateSearchServiceIndex.ToLower());
-                        }
-                    }
+                    amalgamatedDocuments.AddRange(OrderAndProcessSearchResults(ProcessSearch(primaryIndexClient, _searchString, _primaryLanguage)));
                 }
             }
-            else
+            else if (parentIndexClient != null && String.Equals(_primaryLanguage, parentLanguage, StringComparison.OrdinalIgnoreCase))
             {
-                if (!string.IsNullOrEmpty(_primaryLanguage))
+                //Search _primaryLanguage when it is a parent language
+                amalgamatedDocuments.AddRange(OrderAndProcessSearchResults(ProcessSearch(parentIndexClient, _searchString, _primaryLanguage)));
+            }
+            else if (ultimateIndexClient != null && String.Equals(_primaryLanguage, ultimateLanguage, StringComparison.OrdinalIgnoreCase))
+            {
+                //Search _primaryLanguage when it is the ultimate language
+                amalgamatedDocuments.AddRange(OrderAndProcessSearchResults(ProcessSearch(ultimateIndexClient, _searchString, _primaryLanguage)));
+            }
+            if (amalgamatedDocuments.Count == 0)
+            {
+                if (parentIndexClient != null)
                 {
-                    resultDocuments = SearchResult(_searchString, _primaryLanguage);
+                    amalgamatedDocuments.AddRange(OrderAndProcessSearchResults(ProcessSearch(parentIndexClient, _searchString, parentLanguage)));
                 }
-
-                if (!string.IsNullOrEmpty(ultimateLanguage))
+                if (ultimateIndexClient != null)
                 {
-                    //Search in UltimateLanguage with ulitmateindex
-                    if (resultDocuments.Results.Count == 0 && _searchString != null && _tIsUserSearch == true && ultimateLanguage != null)
-                    {
-                        resultDocuments = GetUltimateLanguageSearchResult(_searchString, ultimateLanguage, GetDefaultIndex());
-                    }
+                    amalgamatedDocuments.AddRange(OrderAndProcessSearchResults(ProcessSearch(ultimateIndexClient, _searchString, ultimateLanguage)));
                 }
             }
+            return amalgamatedDocuments;
+        }
 
+        private List<Document> OrderAndProcessSearchResults(DocumentSearchResult<Document> resultDocuments)
+        {
+            List<Document> documents = new List<Document>();
             if (resultDocuments != null)
             {
                 if (resultDocuments.Results.Count > 0)
                 {
                     documents = resultDocuments.Results.OrderByDescending(search => search.Score).Select(resultlist => resultlist.Document).ToList();
 
-                    foreach (var doc in documents)
+                    foreach (Document doc in documents)
                     {
                         if (!string.IsNullOrEmpty(doc.metadata_storage_path) && doc.metadata_storage_path.Contains(".json") && !string.IsNullOrEmpty(doc.ms_locale))
                         {
@@ -537,7 +310,5 @@ namespace AzureSearchCustomHelp
             }
             return documents;
         }
-        #endregion
-
     }
 }

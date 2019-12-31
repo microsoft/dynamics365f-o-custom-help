@@ -1,14 +1,8 @@
-﻿using System;
-using Microsoft.Azure.Search;
+﻿using Microsoft.Azure.Search;
 using Microsoft.Azure.Search.Models;
-using Microsoft.Spatial;
-using System.ComponentModel;
-using Newtonsoft.Json;
+
 namespace AzureSearchCustomHelp
 {
-    
-       
-
     // The SerializePropertyNamesAsCamelCase attribute is defined in the Azure Search .NET SDK.
     // It ensures that Pascal-case property names in the model class are mapped to camel-case
     // field names in the index.

@@ -5,8 +5,6 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AzureSearchCustomHelp
 {
@@ -89,11 +87,11 @@ namespace AzureSearchCustomHelp
             set { base["parentindex"] = value; }
         }
 
-        [ConfigurationProperty("ulitmateindex", IsRequired = false)]
-        public string UlitmateIndex
+        [ConfigurationProperty("ultimateindex", IsRequired = false)]
+        public string UltimateIndex
         {
-            get { return (string)base["ulitmateindex"]; }
-            set { base["ulitmateindex"] = value; }
+            get { return (string)base["ultimateindex"]; }
+            set { base["ultimateindex"] = value; }
         }
     }
 
