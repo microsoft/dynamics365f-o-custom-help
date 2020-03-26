@@ -205,11 +205,11 @@ namespace MainProcessor
                 string query = GetQueryFromLink(link.Link);
                 if (linkType == LinkType.EnUsLink)
                 {
-                    ReplacedEnUsLinks.AppendLine($"{SourceFilePath};{link.Link};{link.Title};{uri.AbsoluteUri};{link.Title + ExternalText}");
+                    ReplacedEnUsLinks.AppendLine($"{SourceFilePath},{link.Link},\"{link.Title}\",{uri.AbsoluteUri},\"{link.Title + ExternalText}\"");
                 }
                 else
                 {
-                    ReplacedLinks.AppendLine($"{SourceFilePath};{link.Link};{link.Title};{uri.AbsoluteUri};{link.Title + ExternalText}");
+                    ReplacedLinks.AppendLine($"{SourceFilePath},{link.Link},\"{link.Title}\",{uri.AbsoluteUri},\"{link.Title + ExternalText}\"");
                     string fileToRemove = href.TrimStart('\\');
                     if (!String.IsNullOrEmpty(query))
                     {

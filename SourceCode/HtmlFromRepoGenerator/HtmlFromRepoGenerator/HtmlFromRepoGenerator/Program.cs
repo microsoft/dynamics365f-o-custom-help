@@ -277,8 +277,8 @@ namespace HtmlFromRepoGenerator
             WriteLog(SbNormalFiles.ToString(), logFiles.NormalFilesLog, "The normal files");
             WriteLog(SbNotExistingFiles.ToString(), logFiles.NotExistentFilesLog, "Not Existing Link;Source File");
             WriteLog(SbCopiedFiles.ToString(), logFiles.CopiedFilesLog, "The files which have been copied from en-US repository");
-            WriteLog(SbReplacedLinks.ToString(), logFiles.ReplacedLinksLog, "Source file;Link;Title;New Link;New Title");
-            WriteLog(SbReplacedEnUsLinks.ToString(), logFiles.ReplacedLanguageLinksLog, "Source file;Link;Title;New Link;New Title");
+            WriteLog(SbReplacedLinks.ToString(), logFiles.ReplacedLinksLog, "Source file,Link,Title,New Link,New Title");
+            WriteLog(SbReplacedEnUsLinks.ToString(), logFiles.ReplacedLanguageLinksLog, "Source file,Link,Title,New Link,New Title");
             //WriteLog(sbIgnored.ToString(), "logs\\ignored files.txt", "The ignored files");
 
             string tempDocFxZipFile = SaveToTempFile(Properties.Resources.docfx, DocFxZip);
