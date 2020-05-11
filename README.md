@@ -1,4 +1,28 @@
 
+# Tools in the toolkit
+
+The toolkit is available at [https://github.com/microsoft/dynamics365f-o-custom-help/](https://github.com/microsoft/dynamics365f-o-custom-help/). The repo contains the following tools and the source code for the tools:
+
+## HtmlFromRepoGenerator tool
+
+For more information, see https://docs.microsoft.com/en-us/dynamics365/fin-ops-core/dev-itpro/help/custom-help-toolkit-htmlfromrepogenerator
+
+## ConvertHtmlToJson tool
+
+For more information, see https://docs.microsoft.com/en-us/dynamics365/fin-ops-core/dev-itpro/help/custom-help-toolkit-converthtmltojson
+
+## HtmlLocaleChanger tool
+
+For more information, see https://docs.microsoft.com/en-us/dynamics365/fin-ops-core/dev-itpro/help/custom-help-toolkit-htmllocalechanger
+
+## "Help Pane extension" Visual Studio project
+
+For more information, see https://docs.microsoft.com/en-us/dynamics365/fin-ops-core/dev-itpro/help/connect-help-pane
+
+## AX 2012 metadata scripts
+
+For more information, see https://docs.microsoft.com/en-us/dynamics365/fin-ops-core/dev-itpro/help/migrate-dynamicsax2012
+
 # Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a

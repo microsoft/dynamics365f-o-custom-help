@@ -1,59 +1,62 @@
+Requests to create data sources, indexes, and indexers using REST APIs
 
-Creating Datasource,Index,Indexer from RestApi:-
-
-Content-Type: Application\JSON
-api-key: (Azure Search Admin Key)
+Common values
+===================================================================================================================================================================
 Auth: no auth
+Content-Type: Application\JSON
+api-key: [Azure Search Admin Key]
 
 
-Create datasource:
-POST https://[service name].search.windows.net/datasources?api-version=2017-11-11
+Create datasource
+===================================================================================================================================================================
+POST https://[AzureSearchServicename].search.windows.net/datasources?api-version=2017-11-11
 
 Request Body
 {
     "name" : "[DataSourceName]",
     "type" : "azureblob",
-    "credentials" : { "connectionString" : "DefaultEndpointsProtocol=https;AccountName=[AccountName];AccountKey=[accountKey];EndpointSuffix=core.windows.net" },
-    "container" : { "name" : "[ContainerName]" }
+    "credentials" : { "connectionString" : "DefaultEndpointsProtocol=https;AccountName=[StorageAccountName];AccountKey=[key];EndpointSuffix=core.windows.net" },
+    "container" : { "name" : "[JSONStorageContainerName]" }
 } 
 
 
-Create index:
-POST https://[servicename].search.windows.net/indexes?api-version=2017-11-11
+Create index
+===================================================================================================================================================================
+POST https://[AzureSearchServicename].search.windows.net/indexes?api-version=2017-11-11
 
 Request Body
 {
     "name" : "[IndexName]",
     "fields": [
         { "name": "id", "type": "Edm.String", "key": true,"searchable": true, "filterable": true, "sortable": true, "facetable": true },
-        { "name": "title", "type": "Edm.String", "searchable": true, "filterable": true, "sortable": true, "facetable": true, "analyzer":"[AnalyzerName]" },
+        { "name": "title", "type": "Edm.String", "searchable": true, "filterable": true, "sortable": true, "facetable": true, "analyzer": "[AnalyzerName]" },
         { "name": "ms_search_form", "type": "Edm.String", "searchable": true, "filterable": true, "sortable": true, "facetable": true },
         { "name": "ms_search_region", "type": "Edm.String", "searchable": true, "filterable": true, "sortable": true, "facetable": true },
         { "name": "ms_locale", "type": "Edm.String", "searchable": true, "filterable": true, "sortable": true, "facetable": true },
         { "name": "metadata_storage_path", "type": "Edm.String", "searchable": true, "filterable": true, "sortable": true, "facetable": true },
         { "name": "metadata_storage_name", "type": "Edm.String", "searchable": true, "filterable": true, "sortable": true, "facetable": true },
         { "name": "metadata_storage_content_type", "type": "Edm.String", "searchable": true, "filterable": false, "sortable": false, "facetable": false },
-        { "name": "description", "type": "Edm.String", "searchable": true, "filterable": true, "sortable": true, "facetable": true, "analyzer":" [AnalyzerName]" }
+        { "name": "description", "type": "Edm.String", "searchable": true, "filterable": true, "sortable": true, "facetable": true, "analyzer": "[AnalyzerName]" }
     ]
 }
 
 
-Create indexer with field mapping:
-POST https://[service name].search.windows.net/indexers?api-version=2017-11-11
+Create indexer with field mapping
+===================================================================================================================================================================
+POST https://[AzureSearchServicename].search.windows.net/indexers?api-version=2017-11-11
 
 Request Body
 {
-  "name" : "[IndexerName]",
-  "dataSourceName" : "[DataSourceName]",
-  "targetIndexName" : "[IndexName]",
-  "schedule" : { "interval" : "PT10H" },
-  "parameters" : { "configuration" : { "parsingMode" : "json" } },
-  "fieldMappings" : [
-    { "sourceFieldName" : "/title", "targetFieldName" : "title" },
-    { "sourceFieldName" : "/ms.search.form", "targetFieldName" : "ms_search_form" },
-    { "sourceFieldName" : "/ms.search.region", "targetFieldName" : "ms_search_region" },
-    { "sourceFieldName" : "/ms.locale", "targetFieldName" : "ms_locale" },
-    { "sourceFieldName" : "/description", "targetFieldName" : "description" }
-    
-  ]
+    "name" : "[IndexerName]",
+    "dataSourceName" : "[DataSourceName]",
+    "targetIndexName" : "[IndexName]",
+    "schedule" : { "interval" : "PT10H" },
+    "parameters" : { "configuration" : { "parsingMode" : "json" } },
+    "fieldMappings" : [
+        { "sourceFieldName" : "/title", "targetFieldName" : "title" },
+        { "sourceFieldName" : "/ms.search.form", "targetFieldName" : "ms_search_form" },
+        { "sourceFieldName" : "/ms.search.region", "targetFieldName" : "ms_search_region" },
+        { "sourceFieldName" : "/ms.locale", "targetFieldName" : "ms_locale" },
+        { "sourceFieldName" : "/description", "targetFieldName" : "description" }
+    ]
 }

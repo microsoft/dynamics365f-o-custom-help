@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.902
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HtmlLocaleChanger", "HtmlLocaleChanger\HtmlLocaleChanger.csproj", "{01916328-CD9D-45B7-8687-C1C7C80D16A5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{01916328-CD9D-45B7-8687-C1C7C80D16A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01916328-CD9D-45B7-8687-C1C7C80D16A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01916328-CD9D-45B7-8687-C1C7C80D16A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01916328-CD9D-45B7-8687-C1C7C80D16A5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0EF30FC7-987D-49E5-99DF-AA596F05721D}
+	EndGlobalSection
+EndGlobal
