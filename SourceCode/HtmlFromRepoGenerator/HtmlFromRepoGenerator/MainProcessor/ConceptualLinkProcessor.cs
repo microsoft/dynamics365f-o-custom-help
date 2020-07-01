@@ -11,14 +11,14 @@ namespace MainProcessor
     {
         #region Constants
 
-        private const string RegexMdLinks = @"(?<!\[)(?<!\!)(?<!include)\[([^\[\]]*?)\]\((.*?)\)(?!\])";
+        private const string RegexMdLinks = @"(?<!\[)(?<!\!)(?<!include\s*)\[([^\[\]]*?)\]\(([^\[\]]*?)\)(?!\])";
         /// <summary>
         /// The regex for the links in MD file (group 1 - title, group 2 - link)
         /// </summary>
         /// <summary>
         /// The regex include links (group 2 - title, group 3 - link)
         /// </summary>
-        private const string RegexIncludeLinks = @"\[\!include\s*\[([^\[\]]*?)\]\((.*?)\)\]";
+        private const string RegexIncludeLinks = @"\[\!include\s*\[([^\[\]]*?)\]\(([^\[\]]*?)\)\]";
 
         private const string RegexMdPictures = @"\[?(?:!\[(.*?)\]\s*?\((.*?)\))\]?(?:\((.*?)\))?";
         /// <summary>
