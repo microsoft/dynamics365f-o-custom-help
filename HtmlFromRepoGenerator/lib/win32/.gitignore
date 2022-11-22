@@ -1,3 +1,0 @@
-## We need these folders, even though they have the same name as build output folders.
-!x64/
-!x86/
