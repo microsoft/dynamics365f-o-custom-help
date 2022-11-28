@@ -27,8 +27,8 @@ namespace HtmlFromRepoGenerator
             if (DoNotClone && !string.IsNullOrEmpty(Repo))
                 errors.AddLast(@"Parameters --donotclone and --repo could not be specified together.");
 
-            if (DoNotClone && !string.IsNullOrEmpty(EnRepo))
-                errors.AddLast(@"Parameters --donotclone and --enRepo could not be specified together.");
+            //if (DoNotClone && !string.IsNullOrEmpty(EnRepo))
+            //    errors.AddLast(@"Parameters --donotclone and --enRepo could not be specified together.");
 
             if (!DoNotClone && !string.IsNullOrEmpty(Repo))
             {
@@ -49,23 +49,23 @@ namespace HtmlFromRepoGenerator
                     errors.AddLast($@"The path specified in --out already exists: {Out}");
             }
 
-            if (!DoNotClone && !string.IsNullOrEmpty(EnRepo))
-            {
-                if (string.IsNullOrEmpty(EnOut))
-                    errors.AddLast(@"The --enOut parameter is empty. Please specify valid path.");
+            //if (!DoNotClone && !string.IsNullOrEmpty(EnRepo))
+            //{
+            //    if (string.IsNullOrEmpty(EnOut))
+            //        errors.AddLast(@"The --enOut parameter is empty. Please specify valid path.");
 
-                bool result = Uri.TryCreate(EnRepo, UriKind.Absolute, out Uri uriResult) && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
-                if (!result)
-                    errors.AddLast(@"Incorrect --enRepo parameter. Please specify valid absolute URL.");
-            }
+            //    bool result = Uri.TryCreate(EnRepo, UriKind.Absolute, out Uri uriResult) && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+            //    if (!result)
+            //        errors.AddLast(@"Incorrect --enRepo parameter. Please specify valid absolute URL.");
+            //}
 
-            if (!string.IsNullOrEmpty(EnOut))
-            {
-                if (DoNotClone && string.IsNullOrEmpty(EnRepo) && !Directory.Exists(EnOut))
-                    errors.AddLast($@"The path specified in --enOut doesn't exist: {EnOut}");
-                else if (!DoNotClone && !string.IsNullOrEmpty(EnRepo) && Directory.Exists(EnOut))
-                    errors.AddLast($@"The path specified in --enOut already exists: {EnOut}");
-            }
+            //if (!string.IsNullOrEmpty(EnOut))
+            //{
+            //    if (DoNotClone && string.IsNullOrEmpty(EnRepo) && !Directory.Exists(EnOut))
+            //        errors.AddLast($@"The path specified in --enOut doesn't exist: {EnOut}");
+            //    else if (!DoNotClone && !string.IsNullOrEmpty(EnRepo) && Directory.Exists(EnOut))
+            //        errors.AddLast($@"The path specified in --enOut already exists: {EnOut}");
+            //}
 
             if (string.IsNullOrEmpty(Json) || Json != null && !Json.Equals("Articles/", StringComparison.InvariantCultureIgnoreCase))
             {
@@ -89,8 +89,8 @@ namespace HtmlFromRepoGenerator
             //if (!string.IsNullOrEmpty(Lng) && !string.IsNullOrEmpty(ReplaceUrl) && ReplaceUrl.IndexOf(Lng, StringComparison.InvariantCultureIgnoreCase) == -1)
             //    errors.AddLast(@"Incorrect --lng code. The --replaceUrl must contain a language identifier that match the value of -–lng value");
 
-            if (!string.IsNullOrEmpty(EnOut) && string.IsNullOrEmpty(Lng))
-                errors.AddLast(@"Please specify --lng parameter. Note: the --replaceUrl must contain a language identifier that match the value of -–lng value");
+            //if (!string.IsNullOrEmpty(EnOut) && string.IsNullOrEmpty(Lng))
+            //    errors.AddLast(@"Please specify --lng parameter. Note: the --replaceUrl must contain a language identifier that match the value of -–lng value");
 
             ValidateLogParameter("--logsDir", LogsDir, errors);
 
@@ -208,6 +208,12 @@ namespace HtmlFromRepoGenerator
             set => _logsDir = value;
         }
 
+        public string EnRepo = null;
+        public string EnOut = null;
+        public string Lng = null;
+        public bool Rtl = false;
+
+/*
         /// <summary>
         /// Gets or sets the enRepo.
         /// </summary>
@@ -244,8 +250,9 @@ namespace HtmlFromRepoGenerator
         /// <value>
         /// The RTL.
         /// </value>
-        [CmdLineArg(ShowInUsage = DefaultBoolean.False, Usage = "Right To Left flag")]
+        [CmdLineArg(ShowInUsage = DefaultBoolean.True, Usage = "Right To Left flag")]
         [System.ComponentModel.Description("The Right To Left")]
         public bool Rtl { get; set; }
+*/
     }
 }
