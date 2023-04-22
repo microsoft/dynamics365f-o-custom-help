@@ -3,13 +3,6 @@
 
 The toolkit is available at [https://github.com/microsoft/dynamics365f-o-custom-help/](https://github.com/microsoft/dynamics365f-o-custom-help/). The repo contains the following tools and the source code for the tools:
 
-## HtmlFromRepoGenerator tool
-
-**IMPORTANT**
-The HTMLFromRepoGenerator tool is being deprecated. The language-specific repositories for the Dynamics 365 documentation are also being deprecated, and will no longer be available after the end of 2022. Consequently, HTMLFromRepoGenerator no longer supports cloning repos and building content in languages other than English.
-
-For more information, see https://docs.microsoft.com/en-us/dynamics365/fin-ops-core/dev-itpro/help/custom-help-toolkit-htmlfromrepogenerator
-
 ## ConvertHtmlToJson tool
 
 For more information, see https://docs.microsoft.com/en-us/dynamics365/fin-ops-core/dev-itpro/help/custom-help-toolkit-converthtmltojson
